@@ -14,6 +14,7 @@ A `dotnet new` template (id `shf`) that scaffolds a Strawhats framework service.
 | `src/Business` | CQRS handlers, contracts, OpenAPI registration, authentication contracts | Domain |
 | `src/Business.Services` | Service implementations | Business |
 | `src/Providers.Mail` | Mail provider impls | Business |
+| `src/Caching.InMemory` | In-memory cache provider | Business |
 | `src/WebApi` | ASP.NET Core minimal API host | Business + impls |
 | `tests/<Name>.Tests` | xUnit, one per source project | matching `src/<Name>` |
 
@@ -123,12 +124,22 @@ This keeps handlers honest about their dependencies — adding a new service to 
 Each project ships a `Register<Name>.cs` exposing `Add<Name>(this IServiceCollection)` (and `Map<Name>(this WebApplication)` when needed). `Program.cs` chains them:
 
 ```csharp
-builder.Services.AddBusiness().AddBusinessServices().AddMailProvider();
+builder.Services.AddBusiness().AddBusinessServices().AddMailProvider().AddInMemoryCaching(builder.Configuration);
 app.MapBusiness();                                  // OpenAPI
 app.MapEndpoints(Assembly.GetExecutingAssembly());  // IEndpoint discovery
 ```
 
 New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape every time.
+
+### Caching
+
+Multi-provider, parallel to Mail. Contracts in `src/Business/Caching/`:
+
+- `ICacheProvider` — `GetAsync<T>` / `SetAsync<T>` / `ExistsAsync` / `RemoveAsync`.
+- `CacheCredential : ProviderCredential<CacheProviderType>` — same factory pattern as mail.
+- `CacheOptions` — bound from `Caching` section (`DefaultTtl`, `KeyPrefix`).
+
+Default impl: `src/Caching.InMemory` (wraps `IMemoryCache`). Future impls follow the `Caching.<Provider>` naming (`Caching.Redis`, `Caching.Memcached`, etc.) — register via `.Add<Provider>Caching(IConfiguration)`. Generate one with `shf make:caching <name>`.
 
 ## Authentication & authorization
 

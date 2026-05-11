@@ -17,6 +17,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Business.Services\Business.Services.csproj" />
       <ProjectReference Include="..\Business\Business.csproj" />
+      <ProjectReference Include="..\Caching.InMemory\Caching.InMemory.csproj" />
       <ProjectReference Include="..\Providers.Mail\Providers.Mail.csproj" />
     </ItemGroup>
 

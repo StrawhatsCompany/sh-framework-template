@@ -7,6 +7,7 @@ using Business.Libraries.Authentication.Jwt;
 using Business.Libraries.Authentication.Mfa;
 using Business.Providers.Mail;
 using Business.Services;
+using Caching.InMemory;
 using Microsoft.AspNetCore.RateLimiting;
 using Providers.Mail;
 using SH.Framework.Library.AspNetCore;
@@ -22,7 +23,8 @@ builder.Services
     .Configure<MailOptions>(builder.Configuration.GetSection(MailOptions.SectionName))
     .AddBusiness()
     .AddBusinessServices()
-    .AddMailProvider();
+    .AddMailProvider()
+    .AddInMemoryCaching(builder.Configuration);
 
 // Authentication + authorization. JWT + API key are built-in; SSO is opt-in per provider
 // (register your ISsoProvider implementations and add `.AddSso(...)` here). MFA orchestrator

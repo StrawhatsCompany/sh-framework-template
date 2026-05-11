@@ -5,6 +5,7 @@
   <Folder Name="/src/">
     <Project Path="Business.Services/Business.Services.csproj" />
     <Project Path="Business/Business.csproj" />
+    <Project Path="Caching.InMemory/Caching.InMemory.csproj" />
     <Project Path="Domain/Domain.csproj" />
     <Project Path="Providers.Mail/Providers.Mail.csproj" />
     <Project Path="WebApi/WebApi.csproj" />
@@ -12,6 +13,7 @@
   <Folder Name="/tests/">
     <Project Path="../tests/Business.Services.Tests/Business.Services.Tests.csproj" />
     <Project Path="../tests/Business.Tests/Business.Tests.csproj" />
+    <Project Path="../tests/Caching.InMemory.Tests/Caching.InMemory.Tests.csproj" />
     <Project Path="../tests/Domain.Tests/Domain.Tests.csproj" />
     <Project Path="../tests/Providers.Mail.Tests/Providers.Mail.Tests.csproj" />
     <Project Path="../tests/WebApi.Tests/WebApi.Tests.csproj" />
