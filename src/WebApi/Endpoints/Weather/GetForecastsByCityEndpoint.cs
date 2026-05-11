@@ -9,7 +9,7 @@ namespace WebApi.Endpoints.Weather;
 
 public sealed class GetForecastsByCityEndpoint : IEndpoint
 {
-    public static string Route => "/weather/forecasts/{city:alpha}";
+    public static string Route => "api/v1/weather/forecasts/{city:alpha}";
 
     public static void Map(IEndpointRouteBuilder app)
     {
