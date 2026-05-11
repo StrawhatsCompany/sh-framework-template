@@ -1,3 +1,5 @@
+using Business.Services.Weather;
+
 namespace Business.Services.Tests;
 
 public class SmokeTests
@@ -5,7 +7,7 @@ public class SmokeTests
     [Fact]
     public void Business_Services_assembly_loads()
     {
-        var assembly = typeof(Business.Services.Services).Assembly;
+        var assembly = typeof(ForecastService).Assembly;
         Assert.NotNull(assembly);
     }
 }

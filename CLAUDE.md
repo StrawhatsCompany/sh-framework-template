@@ -49,14 +49,14 @@ public sealed class GetForecastsByCityQuery : Request { public string City { get
 
 public sealed class GetForecastsByCityResponse { /* ... */ }
 
-public sealed class GetForecastByCityHandler(IServices services)
+public sealed class GetForecastByCityHandler(IForecastService forecasts)
     : RequestHandler<GetForecastsByCityQuery, GetForecastsByCityResponse>
 {
     public override async Task<Result<GetForecastsByCityResponse>> HandleAsync(
         GetForecastsByCityQuery req, CancellationToken ct = default)
     {
-        var forecasts = await services.Forecast.GetForecastAsync(req.City, ct);
-        return Result.Success(GetForecastsByCityResponse.Create(req.City, forecasts));
+        var forecast = await forecasts.GetForecastAsync(req.City, ct);
+        return Result.Success(GetForecastsByCityResponse.Create(req.City, forecast));
     }
 }
 ```
@@ -94,13 +94,16 @@ External integrations follow a factory. `Business` owns contracts only; impls li
 - `ProviderResult` / `ProviderResult<T>` — `IsSuccess`, `Code`, `Errors`, optional payloads
 - `ResultCode` subclasses (e.g. `MailProviderResultCode`) group domain codes
 
-### Service aggregator
+### Service injection
 
-`IServices` / `Services` exposes every domain service so handlers take one dep:
+Handlers inject **only the services they actually use** — never a god-aggregator that exposes the whole catalog. Each domain service has its own interface in `src/Business/Services/<Domain>/` and an implementation in `src/Business.Services/<Domain>/`. The handler takes them as constructor params via primary constructor:
 
 ```csharp
-public sealed class MyHandler(IServices services) : RequestHandler<MyQuery, MyResponse>
+public sealed class MyHandler(IForecastService forecasts, IOrderRepository orders)
+    : RequestHandler<MyQuery, MyResponse>
 ```
+
+This keeps handlers honest about their dependencies — adding a new service to the catalog doesn't ripple into every handler, mocking takes only what the test needs, and the type system surfaces over-injection (too many ctor params → split the handler).
 
 ### Registration
 
