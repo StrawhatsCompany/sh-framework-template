@@ -1,5 +1,3 @@
-﻿using System.Collections.Generic;
-using System.Linq;
 using SH.Framework.Library.Cqrs.Implementation;
 
 namespace Business.Providers;
@@ -58,7 +56,7 @@ public class ProviderResult
     {
         if (_errors.TryGetValue(key, out var currentErrors))
         {
-            if (Array.IndexOf(currentErrors, value) == -1) 
+            if (Array.IndexOf(currentErrors, value) == -1)
             {
                 _errors[key] = [.. currentErrors, value];
             }
@@ -68,29 +66,6 @@ public class ProviderResult
             _errors[key] = [value];
         }
 
-        return this;
-    }
-}
-
-public class ProviderResult<TResponse> : ProviderResult
-{
-    public TResponse? Response { get; set; }
-
-    public override ProviderResult<TResponse> WithRequestJson(string payload, string type = "JSON")
-    {
-        base.WithRequestJson(payload, type);
-        return this;
-    }
-
-    public override ProviderResult<TResponse> WithResponseJson(string payload, string type = "JSON")
-    {
-        base.WithResponseJson(payload, type);
-        return this;
-    }
-
-    public override ProviderResult<TResponse> WithError(string key, string value)
-    {
-        base.WithError(key, value);
         return this;
     }
 }
