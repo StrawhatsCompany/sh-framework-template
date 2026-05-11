@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="Business.Services/Business.Services.csproj" />
+    <Project Path="Business/Business.csproj" />
+    <Project Path="Domain/Domain.csproj" />
+    <Project Path="Persistence.PostgreSql/Persistence.PostgreSql.csproj" />
+    <Project Path="Providers.Mail/Providers.Mail.csproj" />
+    <Project Path="WebApi/WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
