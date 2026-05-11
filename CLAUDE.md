@@ -68,22 +68,34 @@ Commands use `RequestHandler<TRequest>` (no response). Always return `Result` / 
 Auto-discovered by `app.MapEndpoints(Assembly.GetExecutingAssembly())`.
 
 ```csharp
-public class GetForecastsByCityEndpoint : IEndpoint
+public sealed class GetForecastsByCityEndpoint : IEndpoint
 {
     public static string Route => "api/v1/weather/forecasts/{city:alpha}";
 
     public static void Map(IEndpointRouteBuilder app) =>
         app.MapGet(Route, async (string city, [FromServices] IProjector projector, CancellationToken ct) =>
-                Results.Ok(await projector.SendAsync(new GetForecastsByCityQuery { City = city }, ct)))
+                (await projector.SendAsync(new GetForecastsByCityQuery { City = city }, ct)).ToHttp())
             .WithName("GetForecastsByCity")
             .WithSummary("Get weather forecasts for a city")
+            .WithDescription("Optional longer prose. Use for non-obvious behavior or constraints.")
             .WithTags("Weather")
-            .Produces<GetForecastsByCityResponse>()
-            .ProducesProblem(StatusCodes.Status400BadRequest);
+            .Produces<Result<GetForecastsByCityResponse>>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 ```
 
-OpenAPI contract for every endpoint: `.WithName`, `.WithSummary`, `.WithTags`, `.Produces<T>`, `.ProducesProblem(...)`. No exceptions.
+OpenAPI contract every endpoint must declare:
+- `.WithName(...)` — operation id, matches the slice name (no `Endpoint` suffix).
+- `.WithSummary(...)` — short, one-liner; this is what Swagger shows in the list view.
+- `.WithTags(...)` — group by domain (`Weather`, `Mails`, etc.) for the UI.
+- `.Produces<Result<TResponse>>(StatusCodes.Status200OK)` — the **wire shape** is the `Result<T>` envelope, not the unwrapped data; Swagger should not lie about that.
+- `.ProducesValidationProblem()` — for `Result.Failure(... , errors)` mapped through `result.ToHttp()`.
+- `.ProducesProblem(StatusCodes.Status400BadRequest)` — for `Result.Failure(...)` with no errors.
+- `.ProducesProblem(StatusCodes.Status500InternalServerError)` — for `ResultCode.Exception` failures.
+
+`.WithDescription` is optional but encouraged when the route has non-obvious behavior. No exceptions to the rest.
 
 ### Provider pattern
 

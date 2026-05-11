@@ -21,3 +21,7 @@ app.UseHttpsRedirection();
 
 
 app.Run();
+
+// Exposes the auto-generated `Program` class to test projects so they can
+// bootstrap the app via `WebApplicationFactory<Program>`.
+public partial class Program { }

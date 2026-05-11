@@ -63,7 +63,8 @@ Grouped to match `CLAUDE.md`'s structure. Each rule has its CLAUDE.md anchor in 
 
 - [ ] **Endpoint implements `IEndpoint`** with a static `Route` and `Map(IEndpointRouteBuilder)`.
 - [ ] **Endpoint is auto-discovered** via `app.MapEndpoints(Assembly.GetExecutingAssembly())` — no manual registration in `Program.cs`.
-- [ ] **OpenAPI contract complete** — every endpoint declares **all** of: `.WithName`, `.WithSummary`, `.WithTags`, `.Produces<T>`, `.ProducesProblem(StatusCodes.Status400BadRequest)`. Missing any → violation.
+- [ ] **OpenAPI contract complete** — every endpoint declares **all** of: `.WithName`, `.WithSummary`, `.WithTags`, `.Produces<Result<TResponse>>(StatusCodes.Status200OK)` (envelope, not unwrapped), `.ProducesValidationProblem()`, `.ProducesProblem(StatusCodes.Status400BadRequest)`, `.ProducesProblem(StatusCodes.Status500InternalServerError)`. Missing any → violation. `.WithDescription` is optional.
+- [ ] **`WithName` matches the slice operation** — `GetForecastsByCity`, not `GetWeatherForecastsByCityName` or any made-up variant. The OpenAPI operation id leaks into generated clients.
 - [ ] **Result is mapped to HTTP via `result.ToHttp()`** (from `WebApi.Common.ResultHttpExtensions`) — never `Results.Ok(result)` unconditionally, because that returns 200 on failure.
 - [ ] **Route shape** follows `api/v{version}/<resource>/<operation>` (e.g. `api/v1/mails/send`). Routes without `api/v1/` prefix are violations.
 
