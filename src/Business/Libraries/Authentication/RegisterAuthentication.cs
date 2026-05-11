@@ -9,22 +9,22 @@ public static class RegisterAuthentication
     /// <summary>
     /// Top-level entry point for wiring authentication. Caller chains schemes via the builder:
     /// <code>
-    /// builder.Services.AddSHAuthentication(builder.Configuration, auth =&gt;
+    /// builder.Services.AddAuth(builder.Configuration, auth =&gt;
     /// {
     ///     auth.AddJwt();
     ///     // future: auth.AddApiKey(); auth.AddSso(); auth.AddMfa();
     /// });
     /// </code>
     /// </summary>
-    public static IServiceCollection AddSHAuthentication(
+    public static IServiceCollection AddAuth(
         this IServiceCollection services,
         IConfiguration configuration,
-        Action<SHAuthenticationBuilder>? configure = null)
+        Action<AuthBuilder>? configure = null)
     {
         var authBuilder = services.AddAuthentication();
         services.AddAuthorization();
 
-        var builder = new SHAuthenticationBuilder(services, configuration, authBuilder);
+        var builder = new AuthBuilder(services, configuration, authBuilder);
         configure?.Invoke(builder);
         return services;
     }

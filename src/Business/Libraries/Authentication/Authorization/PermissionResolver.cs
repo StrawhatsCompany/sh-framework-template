@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Business.Libraries.Authentication.Authorization;
 
-internal sealed class PermissionResolver(IOptions<SHAuthorizationOptions> options) : IPermissionResolver
+internal sealed class PermissionResolver(IOptions<AuthorizationModelOptions> options) : IPermissionResolver
 {
     public IReadOnlySet<string> Resolve(ClaimsPrincipal principal)
     {

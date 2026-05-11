@@ -4,7 +4,7 @@ namespace Business.Libraries.Authentication.Authorization;
 /// Role-to-permission mapping bound from <c>Authorization:Roles</c>. Each key is a role name;
 /// each value is the set of permissions members of that role hold.
 /// </summary>
-public sealed class SHAuthorizationOptions
+public sealed class AuthorizationModelOptions
 {
     public const string SectionName = "Authorization";
 

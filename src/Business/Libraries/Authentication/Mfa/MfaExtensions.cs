@@ -11,7 +11,7 @@ public static class MfaExtensions
     /// register one or more <see cref="IMfaChannel"/> implementations and exactly one
     /// <see cref="IMfaCodeStore"/> before the request pipeline starts.
     /// </summary>
-    public static SHAuthenticationBuilder AddMfa(this SHAuthenticationBuilder builder)
+    public static AuthBuilder AddMfa(this AuthBuilder builder)
     {
         builder.Services.Configure<MfaOptions>(builder.Configuration.GetSection(MfaOptions.SectionName));
         builder.Services.TryAddSingleton(TimeProvider.System);

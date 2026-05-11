@@ -12,8 +12,8 @@ public static class ApiKeyExtensions
     /// implementation — by default a no-op validator that fails every request is registered so the
     /// app boots and the failure mode is obvious if no real validator was wired.
     /// </summary>
-    public static SHAuthenticationBuilder AddApiKey(
-        this SHAuthenticationBuilder builder,
+    public static AuthBuilder AddApiKey(
+        this AuthBuilder builder,
         Action<ApiKeyOptions>? configureOptions = null)
     {
         builder.Services.TryAddSingleton<IApiKeyValidator, NoOpApiKeyValidator>();

@@ -67,7 +67,7 @@ public class PermissionResolverTests
 
     private static PermissionResolver NewResolver(params (string Role, string[] Permissions)[] roleMap)
     {
-        var options = Options.Create(new SHAuthorizationOptions
+        var options = Options.Create(new AuthorizationModelOptions
         {
             Roles = roleMap.ToDictionary(r => r.Role, r => r.Permissions, StringComparer.Ordinal),
         });

@@ -11,7 +11,7 @@ public static class SsoExtensions
     /// </summary>
     /// <example>
     /// <code>
-    /// builder.Services.AddSHAuthentication(builder.Configuration, auth =&gt;
+    /// builder.Services.AddAuth(builder.Configuration, auth =&gt;
     /// {
     ///     auth.AddSso(
     ///         new GoogleSsoProvider(),
@@ -19,7 +19,7 @@ public static class SsoExtensions
     /// });
     /// </code>
     /// </example>
-    public static SHAuthenticationBuilder AddSso(this SHAuthenticationBuilder builder, params ISsoProvider[] providers)
+    public static AuthBuilder AddSso(this AuthBuilder builder, params ISsoProvider[] providers)
     {
         ArgumentNullException.ThrowIfNull(providers);
         var seen = new HashSet<string>(StringComparer.Ordinal);

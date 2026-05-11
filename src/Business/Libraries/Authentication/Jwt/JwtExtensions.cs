@@ -11,7 +11,7 @@ public static class JwtExtensions
     /// <c>Authentication:Jwt</c> configuration section. Adds <see cref="IJwtTokenIssuer"/>
     /// so consumer handlers can mint tokens.
     /// </summary>
-    public static SHAuthenticationBuilder AddJwt(this SHAuthenticationBuilder builder)
+    public static AuthBuilder AddJwt(this AuthBuilder builder)
     {
         builder.Services
             .AddOptions<JwtOptions>()
