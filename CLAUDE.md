@@ -131,6 +131,10 @@ app.MapEndpoints(Assembly.GetExecutingAssembly());  // IEndpoint discovery
 
 New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape every time.
 
+### Service references (persisted provider credentials)
+
+`src/Domain/Entities/Configuration/ServiceReference.cs` is the entity backing a DB row per provider instance — `Category` (`Mail` / `Sms` / `Cache` / ...), `ProviderType` (`Smtp` / `Twilio` / `Redis` / ...), optional `Group` (`primary` / `transactional`), `CredentialsCipher` (encrypted JSON blob), `IsActive`. `IServiceReferenceStore` (`Business/Configuration/`) gates reads/writes; `InMemoryServiceReferenceStore` is the default for dev/tests and can be swapped per persistence project. `ICredentialProtector` encrypts the blob; `DataProtectionCredentialProtector` is the ASP.NET Data Protection–backed default. Wired by `AddBusiness() → AddConfigurationStore()`.
+
 ### Caching
 
 Multi-provider, parallel to Mail. Contracts in `src/Business/Caching/`:

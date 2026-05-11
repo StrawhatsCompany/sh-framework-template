@@ -77,6 +77,10 @@ dotnet user-secrets set "Authentication:Jwt:SigningKey" "$(openssl rand -base64 
 
 Future providers and persistence integrations will extend this table. The rule applies to every one of them.
 
+## Persisted provider credentials (ServiceReference)
+
+When a `ServiceReference` row stores a provider's credentials, the `CredentialsCipher` column is encrypted via ASP.NET Core Data Protection (`ICredentialProtector`). For local dev, the default `IDataProtectionProvider` reads/writes its key ring under `%LOCALAPPDATA%\ASP.NET\DataProtection-Keys`. **In production, persist the key ring** — see [Configure Data Protection](https://learn.microsoft.com/aspnet/core/security/data-protection/configuration/overview). Losing the key ring renders every cipher unrecoverable; rotating it requires re-encrypting all rows.
+
 ## Reviewing your own setup
 
 Before pushing, sanity-check that no secret has leaked into a committed file:
