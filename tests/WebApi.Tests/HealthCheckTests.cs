@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace WebApi.Tests;
 
-public class HealthCheckTests : IClassFixture<WebApplicationFactory<Program>>
+public class HealthCheckTests : IClassFixture<SHWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly SHWebApplicationFactory _factory;
 
-    public HealthCheckTests(WebApplicationFactory<Program> factory)
+    public HealthCheckTests(SHWebApplicationFactory factory)
     {
         _factory = factory;
     }

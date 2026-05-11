@@ -34,7 +34,7 @@ public class JwtTokenIssuerTests
         {
             ValidIssuer = Options.Issuer,
             ValidAudience = Options.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Options.SigningKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Options.SigningKey!)),
             ValidateLifetime = true,
             ClockSkew = Options.ClockSkew,
         });
