@@ -2,11 +2,11 @@ namespace Business.Providers;
 
 public class ProviderCredential
 {
-    public string HostName { get; set; }
-    public int Port { get; set; }
-    public string? UserName { get; set; }
-    public string? Password { get; set; }
-    public string? ApiKey { get; set; }
-    public string? ApiSecret { get; set; }
-    public bool UseSsl { get; set; } = false;
+    public required string HostName { get; init; }
+    public required int Port { get; init; }
+    public string? UserName { get; init; }
+    public string? Password { get; init; }
+    public string? ApiKey { get; init; }
+    public string? ApiSecret { get; init; }
+    public bool UseSsl { get; init; }
 }
