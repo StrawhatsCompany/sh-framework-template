@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Strawhats Company",
+  "classifications": [
+    "Web",
+    "API",
+    "Clean Architecture"
+  ],
+  "identity": "StrawhatsCompany.SHFramework",
+  "name": "Strawhats Framework",
+  "shortName": "shf",
+  "description": "A Strawhats framework solution template.",
+  "sourceName": "SHFramework",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "primaryOutputs": [
+    {
+      "path": "SHFramework.slnx"
+    }
+  ],
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/.git/**",
+            "**/[Bb]in/**",
+            "**/[Oo]bj/**",
+            "artifacts/**",
+            ".idea/**",
+            "README.md",
+            "StrawhatsCompany.SHFramework.Templates.csproj",
+            "*.DotSettings.user"
+          ]
+        }
+      ]
+    }
+  ]
+}
