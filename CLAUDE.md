@@ -131,6 +131,10 @@ app.MapEndpoints(Assembly.GetExecutingAssembly());  // IEndpoint discovery
 
 New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape every time.
 
+### Parameters (DB-backed IConfiguration overlay)
+
+`src/Domain/Entities/Configuration/Parameter.cs` is a key/value row (`Key`, `Value`, optional `Module`). `IParameterStore` (`Business/Configuration/`) gates reads/writes; `InMemoryParameterStore` is the default. `ParameterConfigurationSource` slots into the standard `ConfigurationBuilder` chain via `.AddPersistenceParameters(store, opts => ...)` — later sources override earlier ones, so place it where you want it in the precedence order. The provider polls the store every `ReloadInterval` (default 60s) and triggers `IConfiguration` reload tokens so `IOptionsSnapshot<T>` / `IOptionsMonitor<T>` consumers see updates without a restart.
+
 ### Service references (persisted provider credentials)
 
 `src/Domain/Entities/Configuration/ServiceReference.cs` is the entity backing a DB row per provider instance — `Category` (`Mail` / `Sms` / `Cache` / ...), `ProviderType` (`Smtp` / `Twilio` / `Redis` / ...), optional `Group` (`primary` / `transactional`), `CredentialsCipher` (encrypted JSON blob), `IsActive`. `IServiceReferenceStore` (`Business/Configuration/`) gates reads/writes; `InMemoryServiceReferenceStore` is the default for dev/tests and can be swapped per persistence project. `ICredentialProtector` encrypts the blob; `DataProtectionCredentialProtector` is the ASP.NET Data Protection–backed default. Wired by `AddBusiness() → AddConfigurationStore()`.

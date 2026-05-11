@@ -11,6 +11,7 @@ public static class RegisterConfiguration
         services.AddDataProtection();
         services.TryAddSingleton<ICredentialProtector, DataProtectionCredentialProtector>();
         services.TryAddSingleton<IServiceReferenceStore, InMemoryServiceReferenceStore>();
+        services.AddParameterStore();
         return services;
     }
 }
