@@ -116,7 +116,7 @@ New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape e
 ## Testing
 
 - One `tests/<Name>.Tests` project per `src/<Name>`. Mirror the namespace.
-- xUnit + FluentAssertions + NSubstitute. No mocking of concrete classes — depend on interfaces.
+- xUnit + NSubstitute. No mocking of concrete classes — depend on interfaces.
 - Test handlers (not endpoints) for business logic. Endpoints get one integration test per route.
 - `dotnet test` must be green before any PR merges.
 
