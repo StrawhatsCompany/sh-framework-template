@@ -1,5 +1,7 @@
 # Strawhats Framework Templates
 
+[![ci](https://github.com/StrawhatsCompany/sh-framework-template/actions/workflows/ci.yml/badge.svg)](https://github.com/StrawhatsCompany/sh-framework-template/actions/workflows/ci.yml)
+
 A `dotnet new` template (`shf`) that scaffolds a Clean Architecture .NET 10 service: CQRS, minimal API, vertical-slice features, provider pattern, OpenAPI metadata, health checks, exception handling, rate limiting, and a secrets convention built around user-secrets.
 
 ## Install
