@@ -1,12 +1,11 @@
 using Business.Providers;
 using Business.Providers.Mail;
 using Business.Providers.Mail.Contracts;
-using MailKit.Net.Smtp;
 using MimeKit;
 
 namespace Providers.Mail.Smtp;
 
-public class SmtpProvider(MailProviderCredential credential) : IMailProvider
+internal sealed class SmtpProvider(ISmtpClientPool pool, MailProviderCredential credential) : IMailProvider
 {
     public async Task<ProviderResult<SendMailContract.Response>> SendAsync(SendMailContract.Request request, CancellationToken cancellationToken = default)
     {
@@ -15,32 +14,19 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
             return ProviderResult.Failure<SendMailContract.Response>(MailProviderResultCode.NeedBody);
         }
 
+        var message = BuildMessage(request);
+        await pool.SendAsync(credential, message, cancellationToken);
+        return ProviderResult.Success(new SendMailContract.Response(string.Empty, "SENT"));
+    }
+
+    private static MimeMessage BuildMessage(SendMailContract.Request request)
+    {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(request.From.FriendlyName, request.From.Address));
 
-        if (request.To != null)
-        {
-            foreach (var to in request.To)
-            {
-                message.To.Add(new MailboxAddress(to.FriendlyName, to.Address));
-            }
-        }
-
-        if (request.Cc != null)
-        {
-            foreach (var cc in request.Cc)
-            {
-                message.Cc.Add(new MailboxAddress(cc.FriendlyName, cc.Address));
-            }
-        }
-
-        if (request.Bcc != null)
-        {
-            foreach (var bcc in request.Bcc)
-            {
-                message.Bcc.Add(new MailboxAddress(bcc.FriendlyName, bcc.Address));
-            }
-        }
+        AddRecipients(message.To, request.To);
+        AddRecipients(message.Cc, request.Cc);
+        AddRecipients(message.Bcc, request.Bcc);
 
         message.Subject = request.Subject;
 
@@ -50,28 +36,27 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
             HtmlBody = request.MailBody.HtmlBody
         };
 
-        if (request.MailBody.Attachments != null)
+        if (request.MailBody.Attachments is { Count: > 0 } attachments)
         {
-            foreach (var attachment in request.MailBody.Attachments)
+            foreach (var attachment in attachments)
             {
-                await bodyBuilder.Attachments.AddAsync(attachment.FileName, attachment.File, new ContentType(attachment.ContentType.MediaType, attachment.ContentType.Name), cancellationToken);
+                bodyBuilder.Attachments.Add(
+                    attachment.FileName,
+                    attachment.File,
+                    ContentType.Parse(attachment.ContentType.MediaType));
             }
         }
 
         message.Body = bodyBuilder.ToMessageBody();
+        return message;
+    }
 
-        using var client = new SmtpClient();
-
-        await client.ConnectAsync(credential.HostName, credential.Port, credential.UseSsl, cancellationToken);
-
-        if (!string.IsNullOrEmpty(credential.UserName))
+    private static void AddRecipients(InternetAddressList list, IEnumerable<Business.Providers.Mail.Dtos.MailAddress>? addresses)
+    {
+        if (addresses is null) return;
+        foreach (var addr in addresses)
         {
-            await client.AuthenticateAsync(credential.UserName, credential.Password ?? string.Empty, cancellationToken);
+            list.Add(new MailboxAddress(addr.FriendlyName, addr.Address));
         }
-
-        await client.SendAsync(message, cancellationToken);
-        await client.DisconnectAsync(true, cancellationToken);
-
-        return ProviderResult.Success(new SendMailContract.Response(string.Empty, "SENT"));
     }
 }
