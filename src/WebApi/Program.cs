@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Threading.RateLimiting;
 using Business.Libraries.Authentication;
 using Business.Libraries.Authentication.ApiKey;
+using Business.Libraries.Authentication.Authorization;
 using Business.Libraries.Authentication.Jwt;
 using Business.Libraries.Authentication.Mfa;
 using Business.Providers.Mail;
@@ -23,13 +24,21 @@ builder.Services
     .AddBusinessServices()
     .AddMailProvider();
 
-// Authentication + authorization. JWT is wired here; API key / SSO / MFA / authorization
-// model land in their own issues (#44 / #45 / #46 / #47) via the same builder.
+// Authentication + authorization. JWT + API key are built-in; SSO is opt-in per provider
+// (register your ISsoProvider implementations and add `.AddSso(...)` here). MFA orchestrator
+// is wired; consumers register IMfaChannel implementations. AddAuthorizationModel registers
+// every permission the application checks — add new ones here so typos fail loudly.
 builder.Services.AddSHAuthentication(builder.Configuration, auth =>
 {
     auth.AddJwt();
     auth.AddApiKey();
     auth.AddMfa();
+    auth.AddAuthorizationModel(perms =>
+    {
+        // Register every permission the app guards with [HasPermission] / RequirePermission.
+        // Example seeds:
+        // perms.Add("weather.read", "orders.read", "orders.write");
+    });
 });
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
