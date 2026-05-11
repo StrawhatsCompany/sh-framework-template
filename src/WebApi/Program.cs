@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Threading.RateLimiting;
 using Business.Libraries.Authentication;
+using Business.Libraries.Authentication.ApiKey;
 using Business.Libraries.Authentication.Jwt;
 using Business.Providers.Mail;
 using Business.Services;
@@ -26,6 +27,7 @@ builder.Services
 builder.Services.AddSHAuthentication(builder.Configuration, auth =>
 {
     auth.AddJwt();
+    auth.AddApiKey();
 });
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
