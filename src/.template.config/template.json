@@ -29,8 +29,11 @@
             "**/.git/**",
             "**/[Bb]in/**",
             "**/[Oo]bj/**",
+            "**/.vs/**",
+            "**/.idea/**",
+            "**/.claude/**",
+            "**/*.user",
             "artifacts/**",
-            ".idea/**",
             "README.md",
             "StrawhatsCompany.SHFramework.Templates.csproj",
             "*.DotSettings.user"

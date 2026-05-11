@@ -11,6 +11,10 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options) : IJwtTokenIs
     public string Issue(IEnumerable<Claim> claims, TimeSpan? lifetime = null)
     {
         var opts = options.Value;
+        if (string.IsNullOrEmpty(opts.SigningKey))
+        {
+            throw new InvalidOperationException("Authentication:Jwt:SigningKey is not configured. Set via `dotnet user-secrets set` (dev) or env var (prod).");
+        }
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(opts.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

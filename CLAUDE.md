@@ -11,11 +11,12 @@ A `dotnet new` template (id `shf`) that scaffolds a Strawhats framework service.
 | Path | Role | Depends on |
 |---|---|---|
 | `src/Domain` | Entities only | — |
-| `src/Business` | CQRS handlers, contracts, OpenAPI registration | Domain |
+| `src/Business` | CQRS handlers, contracts, OpenAPI registration, authentication contracts | Domain |
 | `src/Business.Services` | Service implementations | Business |
-| `src/Persistence.PostgreSql` | PostgreSQL persistence | Business |
 | `src/Providers.Mail` | Mail provider impls | Business |
 | `src/WebApi` | ASP.NET Core minimal API host | Business + impls |
+
+Persistence projects are not in the default scaffold — add one with `shf make:persistence <postgres|sqlserver|sqlite>`.
 | `tests/<Name>.Tests` | xUnit, one per source project | matching `src/<Name>` |
 
 Target: **net10.0**. Clean Architecture — deps point inward to `Domain`.
@@ -128,6 +129,42 @@ app.MapEndpoints(Assembly.GetExecutingAssembly());  // IEndpoint discovery
 ```
 
 New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape every time.
+
+## Authentication & authorization
+
+Wired in `Program.cs` via the fluent `AddSHAuthentication` builder.
+
+```csharp
+builder.Services.AddSHAuthentication(builder.Configuration, auth =>
+{
+    auth.AddJwt();        // Authentication:Jwt — SigningKey from user-secrets
+    auth.AddApiKey();     // consumer registers IApiKeyValidator
+    auth.AddSso(/* ISsoProvider[] */);
+    auth.AddMfa();        // consumer registers IMfaChannel + (production) IMfaCodeStore
+    auth.AddAuthorizationModel(perms =>
+    {
+        perms.Add("orders.read", "orders.write");
+    });
+});
+```
+
+### Schemes
+
+- **JWT bearer** (built-in). `JwtOptions` bound from `Authentication:Jwt`. `IJwtTokenIssuer` mints tokens from a claim set — populate role + `permissions` claims at issue time. `JwtOptionsValidator` fails fast at startup if `SigningKey` is missing or < 256 bits.
+- **API key** (built-in). `X-Api-Key` header (configurable). Consumer implements `IApiKeyValidator` to map keys → claims.
+- **SSO** (contract only). `ISsoProvider` lets consumers wire Google / GitHub / Entra / etc. via their own libraries. Each provider attaches its own ASP.NET handler.
+- **MFA** (contract + default orchestrator). `IMfaChannel` per channel (SMS / email / TOTP), `IMfaCodeStore` for persistence (`InMemoryMfaCodeStore` is a dev-only default; **register a real store for production**). `IMfaChallengeIssuer` generates a hashed N-digit code, dispatches via the channel, persists, then verifies on submission with constant-time compare.
+
+### Authorization model
+
+Permission-based on top of ASP.NET policies:
+
+- `AddAuthorizationModel(perms => perms.Add(...))` registers every permission the app knows about. Endpoints can only assert permissions in the catalog — typos throw at policy build.
+- Role → permissions map lives in `Authorization:Roles` (config or `IPermissionResolver` override).
+- Mark endpoints with `[HasPermission("orders.read")]` or `.RequirePermission("orders.read")` (minimal-API).
+- Custom claim type for direct grants: `AuthorizationClaims.Permission` (`permissions`).
+
+`docs/SECRETS.md` is the index for every secret in scope (Mail credentials, JWT signing key, etc.).
 
 ## Testing
 

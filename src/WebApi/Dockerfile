@@ -1,5 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
+# Pin the non-root UID the official aspnet:10.0 image creates ('app' user, UID 1654). Using a
+# literal here so the image can't silently fall back to root if a future base swap drops APP_UID.
+USER 1654
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
