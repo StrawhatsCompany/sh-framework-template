@@ -1,5 +1,5 @@
-﻿using System.Net.Mime;
+using System.Net.Mime;
 
 namespace Business.Providers.Mail.Dtos;
 
-public record MailAttachment(string FileName, ContentType contentType, Stream File);
+public record MailAttachment(string FileName, ContentType ContentType, Stream File);
