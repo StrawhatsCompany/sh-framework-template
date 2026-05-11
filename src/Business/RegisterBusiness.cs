@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Business.Configuration;
 using Business.Libraries.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,8 @@ public static class RegisterBusiness
     {
         services.AddOpenApiLibrary();
         services.AddCqrsLibraryConfiguration(Assembly.GetExecutingAssembly());
-        
+        services.AddConfigurationStore();
+
         return services;
     }
 
