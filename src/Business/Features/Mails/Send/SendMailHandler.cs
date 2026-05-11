@@ -2,36 +2,46 @@ using Business.Providers;
 using Business.Providers.Mail;
 using Business.Providers.Mail.Contracts;
 using Business.Providers.Mail.Dtos;
+using Microsoft.Extensions.Options;
 using SH.Framework.Library.Cqrs.Implementation;
 
 namespace Business.Features.Mails.Send;
 
-public sealed class SendMailHandler(IProviderFactory<MailProviderCredential, IMailProvider> mailProviderFactory)
+public sealed class SendMailHandler(
+    IProviderFactory<MailProviderCredential, IMailProvider> mailProviderFactory,
+    IOptions<MailOptions> mailOptions)
     : RequestHandler<SendMailCommand>
 {
     public override async Task<Result> HandleAsync(SendMailCommand request, CancellationToken cancellationToken = default)
     {
-        var mailProvider = mailProviderFactory.Create(new MailProviderCredential
+        var options = mailOptions.Value;
+
+        var provider = mailProviderFactory.Create(new MailProviderCredential
         {
-            HostName = "localhost",
-            Port = 1025,
-            UseSsl = false,
+            ProviderType = MailProviderType.Smtp,
+            HostName = options.HostName,
+            Port = options.Port,
+            UseSsl = options.UseSsl,
         });
 
-        var mail = new SendMailContract.Request(
-            new MailAddress("noreply@example.com", "Sender"),
-            new List<MailAddress> { new("recipient@example.com", "Recipient") },
-            "Test Subject",
-            MailBody.Instance().WithHtmlBody("<h1>Hello world!</h1>")
-        );
-
-        var mailResult = await mailProvider.SendAsync(mail, cancellationToken);
-
-        if (mailResult.IsSuccess)
+        var body = MailBody.Instance().WithHtmlBody(request.HtmlBody);
+        if (!string.IsNullOrEmpty(request.TextBody))
         {
-            return Result.Success();
+            body.WithTextBody(request.TextBody);
         }
 
-        return Result.Failure(ResultCode.Failure, mailResult.Errors.ToDictionary());
+        var contract = new SendMailContract.Request(
+            new MailAddress(options.FromAddress, options.FromName),
+            request.To.ToList(),
+            request.Subject,
+            body,
+            request.Cc?.ToList(),
+            request.Bcc?.ToList());
+
+        var providerResult = await provider.SendAsync(contract, cancellationToken);
+
+        return providerResult.IsSuccess
+            ? Result.Success()
+            : Result.Failure(ResultCode.Failure, providerResult.Errors.ToDictionary());
     }
 }
