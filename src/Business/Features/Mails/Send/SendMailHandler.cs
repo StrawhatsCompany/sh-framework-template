@@ -22,6 +22,8 @@ public sealed class SendMailHandler(
             HostName = options.HostName,
             Port = options.Port,
             UseSsl = options.UseSsl,
+            UserName = options.Username,
+            Password = options.Password,
         });
 
         var body = MailBody.Instance().WithHtmlBody(request.HtmlBody);

@@ -38,18 +38,44 @@ public class SendMailHandlerTests
     [Fact]
     public async Task Sets_ProviderType_to_Smtp_explicitly()
     {
-        var (handler, provider) = BuildHandler();
+        var captured = await CaptureCredential();
+
+        Assert.NotNull(captured);
+        Assert.Equal(MailProviderType.Smtp, captured.ProviderType);
+    }
+
+    [Fact]
+    public async Task Propagates_credentials_from_MailOptions_to_factory()
+    {
+        var captured = await CaptureCredential();
+
+        Assert.Equal("user@example.com", captured!.UserName);
+        Assert.Equal("p@ssw0rd", captured.Password);
+    }
+
+    [Fact]
+    public async Task Leaves_credentials_null_when_MailOptions_omits_them()
+    {
+        var captured = await CaptureCredential(noCredentials: true);
+
+        Assert.Null(captured!.UserName);
+        Assert.Null(captured.Password);
+    }
+
+    private static async Task<MailProviderCredential?> CaptureCredential(
+        bool noCredentials = false)
+    {
         MailProviderCredential? captured = null;
+        var provider = Substitute.For<IMailProvider>();
         var factory = Substitute.For<IProviderFactory<MailProviderCredential, IMailProvider>>();
         factory.Create(Arg.Do<MailProviderCredential>(c => captured = c)).Returns(provider);
         provider.SendAsync(Arg.Any<SendMailContract.Request>(), Arg.Any<CancellationToken>())
             .Returns(ProviderResult.Success(new SendMailContract.Response("id", "SENT")));
-        var handlerWithCapture = new SendMailHandler(factory, BuildOptions());
+        var handler = new SendMailHandler(factory, BuildOptions(noCredentials));
 
-        await handlerWithCapture.HandleAsync(BuildCommand());
+        await handler.HandleAsync(BuildCommand());
 
-        Assert.NotNull(captured);
-        Assert.Equal(MailProviderType.Smtp, captured.ProviderType);
+        return captured;
     }
 
     private static (SendMailHandler handler, IMailProvider provider) BuildHandler()
@@ -60,7 +86,7 @@ public class SendMailHandlerTests
         return (new SendMailHandler(factory, BuildOptions()), provider);
     }
 
-    private static IOptions<MailOptions> BuildOptions() =>
+    private static IOptions<MailOptions> BuildOptions(bool noCredentials = false) =>
         Options.Create(new MailOptions
         {
             HostName = "smtp.test",
@@ -68,6 +94,8 @@ public class SendMailHandlerTests
             UseSsl = false,
             FromAddress = "noreply@example.com",
             FromName = "Test",
+            Username = noCredentials ? null : "user@example.com",
+            Password = noCredentials ? null : "p@ssw0rd",
         });
 
     private static SendMailCommand BuildCommand() => new()

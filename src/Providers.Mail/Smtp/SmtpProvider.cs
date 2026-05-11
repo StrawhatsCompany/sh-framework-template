@@ -64,6 +64,11 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
 
         await client.ConnectAsync(credential.HostName, credential.Port, credential.UseSsl, cancellationToken);
 
+        if (!string.IsNullOrEmpty(credential.UserName))
+        {
+            await client.AuthenticateAsync(credential.UserName, credential.Password ?? string.Empty, cancellationToken);
+        }
+
         await client.SendAsync(message, cancellationToken);
         await client.DisconnectAsync(true, cancellationToken);
 
