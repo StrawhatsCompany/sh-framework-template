@@ -76,12 +76,12 @@ Grouped to match `CLAUDE.md`'s structure. Each rule has its CLAUDE.md anchor in 
 - [ ] **Domain-specific result codes** subclass `ResultCode` (e.g. `MailProviderResultCode.NeedBody`).
 - [ ] **No provider DTO leaks into `Domain`** — providers reference `Business`, not `Domain` directly.
 
-### Service aggregator (Patterns → Service aggregator)
+### Service injection (Patterns → Service injection)
 
-> ℹ️ The `IServices` aggregator is currently the documented convention but is on a deprecation path — see audit finding F5 (#10). Until that issue lands, the rule remains "handlers inject `IServices`". After #10 ships, switch this rule to "handlers inject only the services they need".
-
+- [ ] **Handlers inject the specific service interfaces they need** — never `IServices` or any god-aggregator. If a handler takes 5+ services, that is a smell — split the handler.
 - [ ] **Domain services live under `Business.Services/<Domain>/`** with an interface in `Business/Services/<Domain>/`.
 - [ ] **Services are registered in `RegisterBusinessServices.cs`** as `Scoped`.
+- [ ] **No `IServiceProvider` injected into business code.** Service locator pattern is a regression — `IServiceProvider` should appear only in DI infrastructure / framework code, never inside `Business` or `Business.Services`.
 
 ### Registration convention (Patterns → Registration)
 

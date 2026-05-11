@@ -1,13 +1,15 @@
-﻿using Business.Services;
+using Business.Services.Weather;
 using SH.Framework.Library.Cqrs.Implementation;
 
 namespace Business.Features.Weather.GetForecastsByCity;
 
-public sealed class GetForecastByCityHandler(IServices services): RequestHandler<GetForecastsByCityQuery, GetForecastsByCityResponse>
+public sealed class GetForecastByCityHandler(IForecastService forecasts)
+    : RequestHandler<GetForecastsByCityQuery, GetForecastsByCityResponse>
 {
-    public override async Task<Result<GetForecastsByCityResponse>> HandleAsync(GetForecastsByCityQuery request, CancellationToken cancellationToken = new CancellationToken())
+    public override async Task<Result<GetForecastsByCityResponse>> HandleAsync(
+        GetForecastsByCityQuery request, CancellationToken cancellationToken = default)
     {
-        var forecasts = await services.Forecast.GetForecastAsync(request.City, cancellationToken);
-        return Result.Success(GetForecastsByCityResponse.Create(request.City, forecasts));
+        var forecast = await forecasts.GetForecastAsync(request.City, cancellationToken);
+        return Result.Success(GetForecastsByCityResponse.Create(request.City, forecast));
     }
 }
