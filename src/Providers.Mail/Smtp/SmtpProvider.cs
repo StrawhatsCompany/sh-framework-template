@@ -1,9 +1,8 @@
-﻿using Business.Providers;
+using Business.Providers;
 using Business.Providers.Mail;
 using Business.Providers.Mail.Contracts;
 using MailKit.Net.Smtp;
 using MimeKit;
-using System.Text.Json;
 
 namespace Providers.Mail.Smtp;
 
@@ -11,6 +10,11 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
 {
     public async Task<ProviderResult<SendMailContract.Response>> SendAsync(SendMailContract.Request request, CancellationToken cancellationToken = default)
     {
+        if (!request.MailBody.HasBody)
+        {
+            return ProviderResult.Failure<SendMailContract.Response>(MailProviderResultCode.NeedBody);
+        }
+
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(request.From.FriendlyName, request.From.Address));
 
@@ -38,11 +42,6 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
             }
         }
 
-        if (!request.MailBody.HasBody)
-        {
-            return ProviderResult.Failure<SendMailContract.Response>(MailProviderResultCode.NeedBody);
-        }
-
         message.Subject = request.Subject;
 
         var bodyBuilder = new BodyBuilder
@@ -55,7 +54,7 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
         {
             foreach (var attachment in request.MailBody.Attachments)
             {
-                await bodyBuilder.Attachments.AddAsync(attachment.FileName, attachment.File, new ContentType(attachment.contentType.MediaType, attachment.contentType.Name), cancellationToken);
+                await bodyBuilder.Attachments.AddAsync(attachment.FileName, attachment.File, new ContentType(attachment.ContentType.MediaType, attachment.ContentType.Name), cancellationToken);
             }
         }
 
@@ -66,10 +65,8 @@ public class SmtpProvider(MailProviderCredential credential) : IMailProvider
         await client.ConnectAsync(credential.HostName, credential.Port, credential.UseSsl, cancellationToken);
 
         await client.SendAsync(message, cancellationToken);
-        await client.DisconnectAsync(true);
+        await client.DisconnectAsync(true, cancellationToken);
 
-        return ProviderResult
-            .Success(new SendMailContract.Response(string.Empty, "SENT"))
-            .WithRequestJson(JsonSerializer.Serialize(request));
+        return ProviderResult.Success(new SendMailContract.Response(string.Empty, "SENT"));
     }
 }
