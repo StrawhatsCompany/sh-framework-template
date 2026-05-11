@@ -13,11 +13,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace WebApi.Tests.Authentication;
 
-public class ApiKeyAuthenticationTests : IClassFixture<SHWebApplicationFactory>
+public class ApiKeyAuthenticationTests : IClassFixture<IntegrationFactory>
 {
-    private readonly SHWebApplicationFactory _factory;
+    private readonly IntegrationFactory _factory;
 
-    public ApiKeyAuthenticationTests(SHWebApplicationFactory factory)
+    public ApiKeyAuthenticationTests(IntegrationFactory factory)
     {
         _factory = factory;
     }

@@ -23,7 +23,7 @@ internal sealed class PermissionPolicyProvider(
             if (!catalog.Contains(permission))
             {
                 throw new InvalidOperationException(
-                    $"Permission '{permission}' is not in the catalog. Register it via AddSHAuthentication(..., auth => auth.AddAuthorizationModel(perms => perms.Add(\"{permission}\")) ...).");
+                    $"Permission '{permission}' is not in the catalog. Register it via AddAuth(..., auth => auth.AddAuthorizationModel(perms => perms.Add(\"{permission}\")) ...).");
             }
             var policy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()

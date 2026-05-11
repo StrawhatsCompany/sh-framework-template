@@ -10,7 +10,7 @@ namespace WebApi.Tests;
 /// guard passes — the production appsettings deliberately ships no SigningKey, and we mirror the
 /// real wiring path (env vars / user-secrets) in tests rather than committing one to dev config.
 /// </summary>
-public sealed class SHWebApplicationFactory : WebApplicationFactory<Program>
+public sealed class IntegrationFactory : WebApplicationFactory<Program>
 {
     public const string TestSigningKey = "tests-only-signing-key-32-bytes-or-more-please-zzzzzzzzzzzzzzzzzzz";
 

@@ -28,7 +28,7 @@ builder.Services
 // (register your ISsoProvider implementations and add `.AddSso(...)` here). MFA orchestrator
 // is wired; consumers register IMfaChannel implementations. AddAuthorizationModel registers
 // every permission the application checks — add new ones here so typos fail loudly.
-builder.Services.AddSHAuthentication(builder.Configuration, auth =>
+builder.Services.AddAuth(builder.Configuration, auth =>
 {
     auth.AddJwt();
     auth.AddApiKey();

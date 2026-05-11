@@ -15,9 +15,9 @@ A `dotnet new` template (id `shf`) that scaffolds a Strawhats framework service.
 | `src/Business.Services` | Service implementations | Business |
 | `src/Providers.Mail` | Mail provider impls | Business |
 | `src/WebApi` | ASP.NET Core minimal API host | Business + impls |
+| `tests/<Name>.Tests` | xUnit, one per source project | matching `src/<Name>` |
 
 Persistence projects are not in the default scaffold — add one with `shf make:persistence <postgres|sqlserver|sqlite>`.
-| `tests/<Name>.Tests` | xUnit, one per source project | matching `src/<Name>` |
 
 Target: **net10.0**. Clean Architecture — deps point inward to `Domain`.
 
@@ -132,10 +132,10 @@ New provider → new `Register<Name>.cs` → chain in `Program.cs`. Same shape e
 
 ## Authentication & authorization
 
-Wired in `Program.cs` via the fluent `AddSHAuthentication` builder.
+Wired in `Program.cs` via the fluent `AddAuth` builder.
 
 ```csharp
-builder.Services.AddSHAuthentication(builder.Configuration, auth =>
+builder.Services.AddAuth(builder.Configuration, auth =>
 {
     auth.AddJwt();        // Authentication:Jwt — SigningKey from user-secrets
     auth.AddApiKey();     // consumer registers IApiKeyValidator

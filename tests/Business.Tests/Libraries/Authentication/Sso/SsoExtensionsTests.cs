@@ -52,12 +52,12 @@ public class SsoExtensionsTests
         Assert.Throws<ArgumentNullException>(() => NewBuilder().AddSso(null!));
     }
 
-    private static SHAuthenticationBuilder NewBuilder()
+    private static AuthBuilder NewBuilder()
     {
         var services = new ServiceCollection();
         var auth = services.AddAuthentication();
         var configuration = new ConfigurationBuilder().Build();
-        return new SHAuthenticationBuilder(services, configuration, auth);
+        return new AuthBuilder(services, configuration, auth);
     }
 
     private sealed class RecordingProvider(string scheme) : ISsoProvider

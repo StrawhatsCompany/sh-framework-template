@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace WebApi.Tests.Endpoints;
 
-public class OpenApiMetadataTests : IClassFixture<SHWebApplicationFactory>
+public class OpenApiMetadataTests : IClassFixture<IntegrationFactory>
 {
-    private readonly SHWebApplicationFactory _factory;
+    private readonly IntegrationFactory _factory;
 
-    public OpenApiMetadataTests(SHWebApplicationFactory factory)
+    public OpenApiMetadataTests(IntegrationFactory factory)
     {
         _factory = factory;
     }

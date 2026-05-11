@@ -9,15 +9,15 @@ public static class AuthorizationExtensions
     /// <summary>
     /// Wires the permission-based authorization model: policy provider (lazily builds a policy per
     /// permission), authorization handler, permission resolver (role → permissions via
-    /// <see cref="SHAuthorizationOptions"/>), and a permission catalog populated by
+    /// <see cref="AuthorizationModelOptions"/>), and a permission catalog populated by
     /// <paramref name="configurePermissions"/>. Any permission name referenced from a
     /// <c>[HasPermission]</c> attribute or <c>.RequirePermission(...)</c> must be registered here.
     /// </summary>
-    public static SHAuthenticationBuilder AddAuthorizationModel(
-        this SHAuthenticationBuilder builder,
+    public static AuthBuilder AddAuthorizationModel(
+        this AuthBuilder builder,
         Action<PermissionRegistrar>? configurePermissions = null)
     {
-        builder.Services.Configure<SHAuthorizationOptions>(builder.Configuration.GetSection(SHAuthorizationOptions.SectionName));
+        builder.Services.Configure<AuthorizationModelOptions>(builder.Configuration.GetSection(AuthorizationModelOptions.SectionName));
 
         var registrar = new PermissionRegistrar();
         configurePermissions?.Invoke(registrar);

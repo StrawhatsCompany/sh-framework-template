@@ -6,13 +6,13 @@ namespace Business.Libraries.Authentication;
 
 /// <summary>
 /// Fluent surface for wiring authentication schemes onto an <see cref="IServiceCollection"/>.
-/// Held briefly during <c>AddSHAuthentication(...)</c> while consumers chain <c>AddJwt</c>,
+/// Held briefly during <c>AddAuth(...)</c> while consumers chain <c>AddJwt</c>,
 /// <c>AddApiKey</c>, <c>AddSso</c>, <c>AddMfa</c>, etc. (Methods other than the JWT scaffolding
 /// land in their own issues — see #44 / #45 / #46 / #47.)
 /// </summary>
-public sealed class SHAuthenticationBuilder
+public sealed class AuthBuilder
 {
-    internal SHAuthenticationBuilder(IServiceCollection services, IConfiguration configuration, AuthenticationBuilder authenticationBuilder)
+    internal AuthBuilder(IServiceCollection services, IConfiguration configuration, AuthenticationBuilder authenticationBuilder)
     {
         Services = services;
         Configuration = configuration;
