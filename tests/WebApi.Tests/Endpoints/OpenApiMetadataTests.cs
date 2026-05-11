@@ -46,7 +46,7 @@ public class OpenApiMetadataTests : IClassFixture<WebApplicationFactory<Program>
         var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         return doc.RootElement
             .GetProperty("paths")
-            .GetProperty("/weather/forecasts/{city}")
+            .GetProperty("/api/v1/weather/forecasts/{city}")
             .GetProperty("get");
     }
 }
