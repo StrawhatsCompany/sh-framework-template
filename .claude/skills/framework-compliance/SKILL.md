@@ -117,6 +117,13 @@ Grouped to match `CLAUDE.md`'s structure. Each rule has its CLAUDE.md anchor in 
 - [ ] **`compose.yaml`** references only services with real Dockerfiles.
 - [ ] **Dockerfile** uses an explicit non-root user (not `$APP_UID` env that may be unset).
 
+### Secrets (CLAUDE.md → "No secrets in source")
+
+- [ ] **`appsettings.json` and `appsettings.Development.json` contain no secrets.** Run `git grep -E "(Password|ApiKey|ApiSecret|ConnectionString|Token|Secret|SigningKey)" -- "*.json"` — every hit must be a structural key with a placeholder or empty value, never a real credential.
+- [ ] **`WebApi.csproj` has a `<UserSecretsId>`.** Without it `dotnet user-secrets set` fails silently.
+- [ ] **Options classes for secrets** mark the secret properties nullable (`string? Password { get; init; }`) so the type system accepts the "not set in dev" path. Any property named `Password`, `Secret`, `Key`, `ConnectionString`, `ApiKey`, or `Token` is suspect — verify its values come from user-secrets / env vars.
+- [ ] **`docs/SECRETS.md` lists every secret in scope** with a one-liner `dotnet user-secrets set` example. When a new secret is added, the doc gets a new row.
+
 ## Output format
 
 ```markdown

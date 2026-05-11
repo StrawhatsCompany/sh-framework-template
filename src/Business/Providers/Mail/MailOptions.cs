@@ -9,4 +9,9 @@ public sealed class MailOptions
     public bool UseSsl { get; init; }
     public required string FromAddress { get; init; }
     public string? FromName { get; init; }
+
+    // Secrets — must come from user-secrets (dev) or environment / secret store (prod).
+    // Never set these in appsettings.json.
+    public string? Username { get; init; }
+    public string? Password { get; init; }
 }

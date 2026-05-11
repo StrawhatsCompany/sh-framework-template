@@ -37,6 +37,7 @@ dotnet new shf -n MyService -o out/MyService           # scaffold a service
 - **Protocol-agnostic core.** WebApi could be REST, GraphQL, or gRPC. We ship REST only, but treat the handler as the contract and the endpoint as a thin adapter. No HTTP types (`HttpContext`, `IFormFile`, `IActionResult`) inside `Business`.
 - **CQRS via `IProjector`.** Endpoints never call services directly — they dispatch a `Request` through `IProjector.SendAsync`.
 - **DRY / SOLID.** Shared infra goes in `SH.Framework.Library.*`. Don't fork it inline.
+- **No secrets in source.** Provider credentials, persistence connection strings, encryption keys, and API keys never live in `appsettings.json`. Dev → `dotnet user-secrets set` (the `WebApi` project carries `<UserSecretsId>shframework-webapi</UserSecretsId>`). Prod → env vars or a secret store. `appsettings.json` holds structure and non-secret defaults only. See `docs/SECRETS.md`. Any property named `Password`, `Secret`, `Key`, `ConnectionString`, `ApiKey`, or `Token` is assumed to be a secret.
 
 ## Patterns
 
