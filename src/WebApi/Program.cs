@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Business.Libraries.Authentication;
 using Business.Libraries.Authentication.ApiKey;
 using Business.Libraries.Authentication.Jwt;
+using Business.Libraries.Authentication.Mfa;
 using Business.Providers.Mail;
 using Business.Services;
 using Microsoft.AspNetCore.RateLimiting;
@@ -28,6 +29,7 @@ builder.Services.AddSHAuthentication(builder.Configuration, auth =>
 {
     auth.AddJwt();
     auth.AddApiKey();
+    auth.AddMfa();
 });
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
