@@ -4,11 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <PackageType>Template</PackageType>
     <PackageId>StrawhatsCompany.SHFramework.Templates</PackageId>
-    <PackageVersion>3.3.1</PackageVersion>
+    <PackageVersion>3.3.2</PackageVersion>
     <Title>Strawhats Framework Templates</Title>
     <Authors>Strawhats Company</Authors>
     <Description>Templates for creating Strawhats framework services.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/StrawhatsCompany/sh-framework-template</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/StrawhatsCompany/sh-framework-template</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet-new;templates;strawhats;framework;webapi</PackageTags>
     <EnableDefaultItems>false</EnableDefaultItems>
     <NoDefaultExcludes>true</NoDefaultExcludes>
@@ -20,6 +24,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
     <Content Include="**\*"
              Exclude=".git\**;.idea\**;**\bin\**;**\obj\**;artifacts\**;*.DotSettings.user;README.md;StrawhatsCompany.SHFramework.Templates.csproj" />
   </ItemGroup>
