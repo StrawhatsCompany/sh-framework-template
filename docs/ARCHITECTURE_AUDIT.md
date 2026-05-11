@@ -10,12 +10,12 @@ Findings are ranked **🔴 material** (should be fixed before this template is u
 
 ### F1 — `SendMailHandler` is a hardcoded demo, not a handler
 
-**File:** `src/Business/Features/Mails/Send/SendMailCommand.cs:9-43`
+**File:** `src/Business/Features/Mails/Send/SendMailCommand.cs:9-43` (pre-split)
 
-- `SendMailCommand` (L9-11) is an empty `Request` — it carries no recipient, no subject, no body. The "command" can't actually command anything.
-- The handler hardcodes the SMTP host (`localhost:1025`), the sender (`muharrem.kackin@mokaunited.com`), the recipient (`ilayda.kackin@strawhats.company`), the subject, and the HTML body (L17-30).
-- Credential `ProviderType` is never set (L17-21) — it relies on `default(MailProviderType)` happening to equal `Smtp`. Adding a new enum value would silently break this.
-- SMTP credentials should come from configuration (`IOptions<MailProviderCredential>`), not a literal in business code.
+- `SendMailCommand` was an empty `Request` — it carried no recipient, no subject, no body.
+- The handler hardcoded the SMTP host, the sender, the recipient, the subject, and the HTML body (personal email addresses and names baked into the template).
+- Credential `ProviderType` was never set — it relied on `default(MailProviderType)` happening to equal `Smtp`. Adding a new enum value would silently break this.
+- SMTP credentials should come from configuration (`IOptions<MailOptions>`), not a literal in business code.
 
 **Principles violated:** SRP (handler doing config + transport selection), DIP (concrete config inside business layer), OCP (enum addition breaks behavior silently).
 

@@ -77,14 +77,7 @@ Excludes `bin/`, `obj/`, `.git/`, `.idea/`, `artifacts/`, `README.md`, `*.DotSet
 
 **File:** `src/Business/Features/Mails/Send/SendMailCommand.cs:24-27`
 
-```csharp
-new MailAddress("muharrem.kackin@mokaunited.com", "Muharrem Kackin"),
-new List<MailAddress>() {
-    new MailAddress("ilayda.kackin@strawhats.company", "Ilayda Kackin")
-}
-```
-
-Two personal email addresses are baked into the template. Every service scaffolded from `dotnet new shf` ships with these as the default sender/recipient. **Effect:** PII leak, plus a real risk that someone deploys the template "as is" and starts sending production traffic to/from these inboxes.
+The handler used to hardcode two personal `MailAddress` instances (a sender and a recipient) inside `SendMailHandler.HandleAsync`. Every service scaffolded from `dotnet new shf` ships with these as the default sender/recipient. **Effect:** PII leak, plus a real risk that someone deploys the template "as is" and starts sending production traffic to/from these inboxes.
 
 **Fix:** remove the hardcoded data (already tracked in #6). In the interim, replace the addresses with obvious dummies like `noreply@example.com` and `recipient@example.com`.
 
