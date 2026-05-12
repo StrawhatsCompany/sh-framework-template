@@ -15,6 +15,9 @@ public sealed class User
     public string DisplayName { get; set; } = "";
     public DateTime? EmailVerifiedAt { get; set; }
     public DateTime? PhoneVerifiedAt { get; set; }
+    public int FailedLoginAttempts { get; set; }
+    public DateTime? LastFailedLoginAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
     public UserStatus Status { get; set; } = UserStatus.PendingVerification;
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

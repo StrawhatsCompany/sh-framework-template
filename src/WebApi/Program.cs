@@ -1,10 +1,16 @@
 using System.Reflection;
+using System.Text;
 using System.Threading.RateLimiting;
+using Business.Authentication;
+using Business.Authentication.Jwt;
 using Business.Common;
 using Business.Providers.Mail;
 using Business.Services;
 using Caching.InMemory;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Providers.Mail;
 using SH.Framework.Library.AspNetCore;
 using WebApi.Common;
@@ -29,6 +35,43 @@ builder.Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContext, HttpUserContext>();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
+
+// Authentication + authorization. JWT bearer is the only scheme today; API keys land in #77,
+// SSO in #81. Endpoints opt in to permission gating via [HasPermission("admin.users.write")]
+// — the policy resolves against the DB at request time so role changes apply immediately.
+builder.Services.AddAuthentication(opts =>
+    {
+        opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, _ => { });
+
+builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
+    new ConfigureNamedOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, opts =>
+    {
+        var jwt = sp.GetRequiredService<IOptions<JwtOptions>>().Value;
+        if (string.IsNullOrEmpty(jwt.SigningKey) || Encoding.UTF8.GetByteCount(jwt.SigningKey) < 32)
+        {
+            throw new InvalidOperationException(
+                "Authentication:Jwt:SigningKey is missing or too short. Must be at least 32 UTF-8 bytes (HMAC-SHA256). " +
+                "Set via `dotnet user-secrets set` (dev) or environment / secret store (prod). See docs/SECRETS.md.");
+        }
+
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+            ClockSkew = jwt.ClockSkew,
+        };
+    }));
+
+builder.Services.AddSHAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -70,6 +113,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBusiness();
 app.MapEndpoints(Assembly.GetExecutingAssembly());

@@ -1,3 +1,4 @@
+using Business.Authentication.Authorization;
 using Business.Features.Admin.Tenants.CreateTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ public sealed class CreateTenantEndpoint : IEndpoint
 
     public static void Map(IEndpointRouteBuilder app)
     {
-        // TODO(perms): gate with [HasPermission("admin.tenants.write")] once #74 lands.
         app.MapPost(Route, async (
                     [FromBody] CreateTenantCommand command,
                     [FromServices] IProjector projector,
@@ -23,8 +23,11 @@ public sealed class CreateTenantEndpoint : IEndpoint
             .WithSummary("Create a tenant")
             .WithDescription("Slug must be 2-64 lowercase alphanumeric characters or hyphens; must be unique. DisplayName defaults to the slug if omitted.")
             .WithTags("Admin / Tenants")
+            .RequirePermission("admin.tenants.write")
             .Produces<Result<CreateTenantResponse>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
