@@ -1,3 +1,4 @@
+using Business.Authentication.Authorization;
 using Business.Features.Admin.Users.CreateUser;
 using Business.Features.Admin.Users.DeleteUser;
 using Business.Features.Admin.Users.GetUser;
@@ -13,8 +14,6 @@ using WebApi.Common;
 
 namespace WebApi.Endpoints.Admin.Users;
 
-// TODO(perms): every route here lands behind [HasPermission("admin.users.*")] once #75 brings authentication.
-
 public sealed class ListUsersEndpoint : IEndpoint
 {
     public static string Route => "api/v1/admin/users";
@@ -26,9 +25,10 @@ public sealed class ListUsersEndpoint : IEndpoint
                 CancellationToken ct = default) =>
             (await projector.SendAsync(new ListUsersQuery { Status = status }, ct)).ToHttp())
         .WithName("ListUsers").WithSummary("List users").WithTags("Admin / Users")
+        .RequirePermission("admin.users.read")
         .Produces<Result<ListUsersResponse>>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class GetUserEndpoint : IEndpoint
@@ -39,9 +39,10 @@ public sealed class GetUserEndpoint : IEndpoint
         app.MapGet(Route, async (Guid id, [FromServices] IProjector projector, CancellationToken ct = default) =>
             (await projector.SendAsync(new GetUserQuery { Id = id }, ct)).ToHttp())
         .WithName("GetUser").WithSummary("Get a user by id").WithTags("Admin / Users")
+        .RequirePermission("admin.users.read")
         .Produces<Result<GetUserResponse>>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class CreateUserEndpoint : IEndpoint
@@ -52,10 +53,11 @@ public sealed class CreateUserEndpoint : IEndpoint
         app.MapPost(Route, async ([FromBody] CreateUserCommand cmd, [FromServices] IProjector projector, CancellationToken ct = default) =>
             (await projector.SendAsync(cmd, ct)).ToHttp())
         .WithName("CreateUser").WithSummary("Create a user").WithTags("Admin / Users")
+        .RequirePermission("admin.users.write")
         .Produces<Result<CreateUserResponse>>(StatusCodes.Status200OK)
         .ProducesValidationProblem()
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class UpdateUserEndpoint : IEndpoint
@@ -71,9 +73,10 @@ public sealed class UpdateUserEndpoint : IEndpoint
         .WithName("UpdateUser").WithSummary("Update a user")
         .WithDescription("Patch semantics: null fields are left unchanged. Changing Phone clears PhoneVerifiedAt.")
         .WithTags("Admin / Users")
+        .RequirePermission("admin.users.write")
         .Produces<Result<UpdateUserResponse>>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class DeleteUserEndpoint : IEndpoint
@@ -84,9 +87,10 @@ public sealed class DeleteUserEndpoint : IEndpoint
         app.MapDelete(Route, async (Guid id, [FromServices] IProjector projector, CancellationToken ct = default) =>
             (await projector.SendAsync(new DeleteUserCommand { Id = id }, ct)).ToHttp())
         .WithName("DeleteUser").WithSummary("Soft-delete a user").WithTags("Admin / Users")
+        .RequirePermission("admin.users.write")
         .Produces<Result>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class SetUserRolesEndpoint : IEndpoint
@@ -102,7 +106,8 @@ public sealed class SetUserRolesEndpoint : IEndpoint
         .WithName("SetUserRoles").WithSummary("Replace the user's role assignments")
         .WithDescription("Body is the full list of role ids the user should have. Roles not in the list are unassigned.")
         .WithTags("Admin / Users")
+        .RequirePermission("admin.users.roles.write")
         .Produces<Result>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }

@@ -1,3 +1,4 @@
+using Business.Authentication.Authorization;
 using Business.Features.Admin.Tenants.UpdateTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ public sealed class UpdateTenantEndpoint : IEndpoint
 
     public static void Map(IEndpointRouteBuilder app)
     {
-        // TODO(perms): gate with [HasPermission("admin.tenants.write")] once #74 lands.
         app.MapPatch(Route, async (
                     Guid id,
                     [FromBody] UpdateTenantCommand command,
@@ -27,8 +27,11 @@ public sealed class UpdateTenantEndpoint : IEndpoint
             .WithSummary("Update a tenant")
             .WithDescription("Updates DisplayName and/or Status. Null fields are left unchanged.")
             .WithTags("Admin / Tenants")
+            .RequirePermission("admin.tenants.write")
             .Produces<Result<UpdateTenantResponse>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }

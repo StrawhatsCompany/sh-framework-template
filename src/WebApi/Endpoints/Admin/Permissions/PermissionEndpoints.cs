@@ -1,3 +1,4 @@
+using Business.Authentication.Authorization;
 using Business.Features.Admin.Permissions.CreatePermission;
 using Business.Features.Admin.Permissions.DeletePermission;
 using Business.Features.Admin.Permissions.GetPermission;
@@ -10,8 +11,6 @@ using WebApi.Common;
 
 namespace WebApi.Endpoints.Admin.Permissions;
 
-// TODO(perms): every route here lands behind [HasPermission("admin.permissions.*")] once #75 brings authentication.
-
 public sealed class ListPermissionsEndpoint : IEndpoint
 {
     public static string Route => "api/v1/admin/permissions";
@@ -20,9 +19,10 @@ public sealed class ListPermissionsEndpoint : IEndpoint
         app.MapGet(Route, async ([FromQuery] string? category, [FromServices] IProjector projector, CancellationToken ct = default) =>
             (await projector.SendAsync(new ListPermissionsQuery { Category = category }, ct)).ToHttp())
         .WithName("ListPermissions").WithSummary("List permissions in the global catalog").WithTags("Admin / Permissions")
+        .RequirePermission("admin.permissions.read")
         .Produces<Result<ListPermissionsResponse>>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class GetPermissionEndpoint : IEndpoint
@@ -33,9 +33,10 @@ public sealed class GetPermissionEndpoint : IEndpoint
         app.MapGet(Route, async (Guid id, [FromServices] IProjector projector, CancellationToken ct = default) =>
             (await projector.SendAsync(new GetPermissionQuery { Id = id }, ct)).ToHttp())
         .WithName("GetPermission").WithSummary("Get a permission by id").WithTags("Admin / Permissions")
+        .RequirePermission("admin.permissions.read")
         .Produces<Result<GetPermissionResponse>>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class CreatePermissionEndpoint : IEndpoint
@@ -48,10 +49,11 @@ public sealed class CreatePermissionEndpoint : IEndpoint
         .WithName("CreatePermission").WithSummary("Add a permission to the catalog")
         .WithDescription("Name must be dotted lowercase (e.g. orders.read, billing.invoices.refund).")
         .WithTags("Admin / Permissions")
+        .RequirePermission("admin.permissions.write")
         .Produces<Result<CreatePermissionResponse>>(StatusCodes.Status200OK)
         .ProducesValidationProblem()
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
 
 public sealed class DeletePermissionEndpoint : IEndpoint
@@ -64,7 +66,8 @@ public sealed class DeletePermissionEndpoint : IEndpoint
         .WithName("DeletePermission").WithSummary("Remove a permission from the catalog")
         .WithDescription("Removes the permission row globally. Existing role-permission joins will need to be cleaned up separately.")
         .WithTags("Admin / Permissions")
+        .RequirePermission("admin.permissions.write")
         .Produces<Result>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .ProducesProblem(StatusCodes.Status500InternalServerError);
+        .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status500InternalServerError);
 }
