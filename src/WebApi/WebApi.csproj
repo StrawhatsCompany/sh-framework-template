@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="SH.Framework.Library.AspNetCore" Version="1.0.0" />
+      <PackageReference Include="SH.Framework.Library.AspNetCore" Version="$(SHAspNetCoreVersion)" />
     </ItemGroup>
 
 </Project>
