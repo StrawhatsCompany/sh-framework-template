@@ -1,10 +1,5 @@
 using System.Reflection;
 using System.Threading.RateLimiting;
-using Business.Libraries.Authentication;
-using Business.Libraries.Authentication.ApiKey;
-using Business.Libraries.Authentication.Authorization;
-using Business.Libraries.Authentication.Jwt;
-using Business.Libraries.Authentication.Mfa;
 using Business.Providers.Mail;
 using Business.Services;
 using Caching.InMemory;
@@ -25,23 +20,6 @@ builder.Services
     .AddBusinessServices()
     .AddMailProvider()
     .AddInMemoryCaching(builder.Configuration);
-
-// Authentication + authorization. JWT + API key are built-in; SSO is opt-in per provider
-// (register your ISsoProvider implementations and add `.AddSso(...)` here). MFA orchestrator
-// is wired; consumers register IMfaChannel implementations. AddAuthorizationModel registers
-// every permission the application checks — add new ones here so typos fail loudly.
-builder.Services.AddAuth(builder.Configuration, auth =>
-{
-    auth.AddJwt();
-    auth.AddApiKey();
-    auth.AddMfa();
-    auth.AddAuthorizationModel(perms =>
-    {
-        // Register every permission the app guards with [HasPermission] / RequirePermission.
-        // Example seeds:
-        // perms.Add("weather.read", "orders.read", "orders.write");
-    });
-});
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -83,9 +61,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseCors();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapBusiness();
 app.MapEndpoints(Assembly.GetExecutingAssembly());

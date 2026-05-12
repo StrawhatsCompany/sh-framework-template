@@ -152,39 +152,11 @@ Default impl: `src/Caching.InMemory` (wraps `IMemoryCache`). Future impls follow
 
 ## Authentication & authorization
 
-Wired in `Program.cs` via the fluent `AddAuth` builder.
+**Not in the default scaffold.** The previous built-in stack (JWT / ApiKey / SSO / MFA / permission catalog) was removed and is being rebuilt slice-by-slice across issues #71-#81. Once it lands in the framework template, it gets extracted to `shf make:authentication` so consumer services can opt in. See [project_auth_rebuild memory](../memory/) and the open issues on `StrawhatsCompany/sh-framework-template` for the rebuild plan.
 
-```csharp
-builder.Services.AddAuth(builder.Configuration, auth =>
-{
-    auth.AddJwt();        // Authentication:Jwt — SigningKey from user-secrets
-    auth.AddApiKey();     // consumer registers IApiKeyValidator
-    auth.AddSso(/* ISsoProvider[] */);
-    auth.AddMfa();        // consumer registers IMfaChannel + (production) IMfaCodeStore
-    auth.AddAuthorizationModel(perms =>
-    {
-        perms.Add("orders.read", "orders.write");
-    });
-});
-```
+Generated services currently have no auth pipeline registered. Endpoints are open by default. Add auth when the rebuild lands.
 
-### Schemes
-
-- **JWT bearer** (built-in). `JwtOptions` bound from `Authentication:Jwt`. `IJwtTokenIssuer` mints tokens from a claim set — populate role + `permissions` claims at issue time. `JwtOptionsValidator` fails fast at startup if `SigningKey` is missing or < 256 bits.
-- **API key** (built-in). `X-Api-Key` header (configurable). Consumer implements `IApiKeyValidator` to map keys → claims.
-- **SSO** (contract only). `ISsoProvider` lets consumers wire Google / GitHub / Entra / etc. via their own libraries. Each provider attaches its own ASP.NET handler.
-- **MFA** (contract + default orchestrator). `IMfaChannel` per channel (SMS / email / TOTP), `IMfaCodeStore` for persistence (`InMemoryMfaCodeStore` is a dev-only default; **register a real store for production**). `IMfaChallengeIssuer` generates a hashed N-digit code, dispatches via the channel, persists, then verifies on submission with constant-time compare.
-
-### Authorization model
-
-Permission-based on top of ASP.NET policies:
-
-- `AddAuthorizationModel(perms => perms.Add(...))` registers every permission the app knows about. Endpoints can only assert permissions in the catalog — typos throw at policy build.
-- Role → permissions map lives in `Authorization:Roles` (config or `IPermissionResolver` override).
-- Mark endpoints with `[HasPermission("orders.read")]` or `.RequirePermission("orders.read")` (minimal-API).
-- Custom claim type for direct grants: `AuthorizationClaims.Permission` (`permissions`).
-
-`docs/SECRETS.md` is the index for every secret in scope (Mail credentials, JWT signing key, etc.).
+`docs/SECRETS.md` indexes every secret currently in scope (Mail credentials).
 
 ## Testing
 
