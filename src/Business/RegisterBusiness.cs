@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Business.Common;
 using Business.Configuration;
+using Business.Identity;
 using Business.Libraries.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ public static class RegisterBusiness
         services.AddOpenApiLibrary();
         services.AddCqrsLibraryConfiguration(Assembly.GetExecutingAssembly());
         services.AddConfigurationStore();
+        services.AddIdentity();
 
         // Null-safe defaults — HTTP-aware implementations override these in WebApi/Program.cs.
         // Background jobs, seeders, and migrations get null UserId/TenantId, which the entity
