@@ -1,6 +1,8 @@
 using Business.Authentication.ApiKeys;
 using Business.Authentication.Authorization;
 using Business.Authentication.Jwt;
+using Business.Authentication.Mfa;
+using Business.Authentication.Mfa.Totp;
 using Business.Authentication.Sessions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +33,16 @@ public static class RegisterAuthentication
         services.TryAddSingleton<IApiKeyStore, InMemoryApiKeyStore>();
         services.TryAddSingleton<IApiKeyFactory, ApiKeyFactory>();
         services.Configure<ApiKeyOptions>(configuration.GetSection(ApiKeyOptions.SectionName));
+
+        // MFA — stores, options, TOTP channel, orchestrator. Email + SMS channels register
+        // themselves via #79 and #80; the orchestrator resolves by Kind so additional channels
+        // plug in without changes here.
+        services.Configure<MfaOptions>(configuration.GetSection(MfaOptions.SectionName));
+        services.TryAddSingleton<IMfaFactorStore, InMemoryMfaFactorStore>();
+        services.TryAddSingleton<IMfaChallengeStore, InMemoryMfaChallengeStore>();
+        services.TryAddSingleton<ITotpService, TotpService>();
+        services.AddScoped<IMfaChannel, TotpMfaChannel>();
+        services.AddScoped<IMfaOrchestrator, MfaOrchestrator>();
 
         // Permission policy machinery — gates endpoints with [HasPermission("admin.users.write")].
         // Resolves against the DB at request time (user -> roles -> permissions) so role changes
