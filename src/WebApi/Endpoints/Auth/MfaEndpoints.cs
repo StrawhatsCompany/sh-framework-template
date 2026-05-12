@@ -1,3 +1,4 @@
+using Business.Features.Auth.MfaEmail;
 using Business.Features.Auth.MfaTotp;
 using Business.Features.Auth.MfaVerify;
 using Microsoft.AspNetCore.Http;
@@ -75,6 +76,39 @@ public sealed class DisableTotpEndpoint : IEndpoint
             (await projector.SendAsync(new DisableTotpCommand { FactorId = factorId }, ct)).ToHttp())
         .WithName("DisableTotp")
         .WithSummary("Disable a TOTP factor (soft delete)")
+        .WithTags("Auth / MFA")
+        .RequireAuthorization()
+        .Produces<Result>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
+}
+
+public sealed class EnrollEmailEndpoint : IEndpoint
+{
+    public static string Route => "api/v1/auth/mfa/email/enroll";
+
+    public static void Map(IEndpointRouteBuilder app) =>
+        app.MapPost(Route, async ([FromServices] IProjector projector, CancellationToken ct = default) =>
+            (await projector.SendAsync(new EnrollEmailCommand(), ct)).ToHttp())
+        .WithName("EnrollEmailMfa")
+        .WithSummary("Enroll the caller's verified email as an MFA factor")
+        .WithDescription("Requires User.EmailVerifiedAt to be set. The factor activates immediately — no separate confirm step, since the email itself was verified during signup or change-email.")
+        .WithTags("Auth / MFA")
+        .RequireAuthorization()
+        .Produces<Result<EnrollEmailResponse>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
+}
+
+public sealed class DisableEmailEndpoint : IEndpoint
+{
+    public static string Route => "api/v1/auth/mfa/email/{factorId:guid}";
+
+    public static void Map(IEndpointRouteBuilder app) =>
+        app.MapDelete(Route, async (Guid factorId, [FromServices] IProjector projector, CancellationToken ct = default) =>
+            (await projector.SendAsync(new DisableEmailCommand { FactorId = factorId }, ct)).ToHttp())
+        .WithName("DisableEmailMfa")
+        .WithSummary("Disable an email MFA factor (soft delete)")
         .WithTags("Auth / MFA")
         .RequireAuthorization()
         .Produces<Result>(StatusCodes.Status200OK)
