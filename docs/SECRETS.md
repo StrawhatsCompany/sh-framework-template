@@ -64,16 +64,10 @@ Note the double underscore (`__`) — it is how .NET's environment-variable prov
 
 | Key | Used by | Type |
 |---|---|---|
-| `Authentication:Jwt:SigningKey` | `JwtOptions` → JWT bearer token validation + `IJwtTokenIssuer` | **required** when JWT is wired; ≥ 32 UTF-8 bytes (HMAC-SHA256) |
 | `Mail:Username` | `MailOptions` → `SmtpProvider.AuthenticateAsync` | optional — leave unset for unauthenticated relays (MailHog, dev) |
 | `Mail:Password` | `MailOptions` → `SmtpProvider.AuthenticateAsync` | optional — required when `Username` is set |
 
-Set the JWT key during local setup:
-
-```pwsh
-cd src/WebApi
-dotnet user-secrets set "Authentication:Jwt:SigningKey" "$(openssl rand -base64 48)"   # any ≥ 32-byte string works
-```
+The built-in authentication stack was removed in v3.5.0 and is being rebuilt across [issues #71-#81](https://github.com/StrawhatsCompany/sh-framework-template/issues). The JWT signing key and other auth secrets will return to this table once the rebuild lands.
 
 Future providers and persistence integrations will extend this table. The rule applies to every one of them.
 
