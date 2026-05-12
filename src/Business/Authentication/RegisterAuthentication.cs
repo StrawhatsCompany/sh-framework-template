@@ -1,5 +1,6 @@
 using Business.Authentication.Authorization;
 using Business.Authentication.Jwt;
+using Business.Authentication.Sessions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,12 @@ public static class RegisterAuthentication
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<LoginOptions>(configuration.GetSection(LoginOptions.SectionName));
         services.TryAddScoped<IJwtTokenIssuer, JwtTokenIssuer>();
+
+        // Session + refresh token stores — in-memory defaults; persistence-backed impls
+        // override via explicit registration after AddBusiness.
+        services.TryAddSingleton<ISessionStore, InMemorySessionStore>();
+        services.TryAddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
+        services.TryAddSingleton<IRefreshTokenFactory, RefreshTokenFactory>();
 
         // Permission policy machinery — gates endpoints with [HasPermission("admin.users.write")].
         // Resolves against the DB at request time (user -> roles -> permissions) so role changes

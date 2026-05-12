@@ -1,5 +1,6 @@
 using Business.Authentication;
 using Business.Authentication.Jwt;
+using Business.Authentication.Sessions;
 using Business.Identity;
 using Domain.Entities.Identity;
 using Microsoft.Extensions.Options;
@@ -12,13 +13,17 @@ public sealed class LoginHandler(
     IUserStore users,
     IPasswordHasher hasher,
     IJwtTokenIssuer jwt,
-    IOptionsSnapshot<LoginOptions> loginOptions)
+    ISessionStore sessions,
+    IRefreshTokenStore refreshTokens,
+    IRefreshTokenFactory refreshTokenFactory,
+    IOptionsSnapshot<LoginOptions> loginOptions,
+    IOptionsSnapshot<JwtOptions> jwtOptions)
     : RequestHandler<LoginCommand, LoginResponse>
 {
     public override async Task<Result<LoginResponse>> HandleAsync(
         LoginCommand request, CancellationToken cancellationToken = default)
     {
-        // 1. Resolve tenant. TenantId wins; fall back to slug; otherwise fail.
+        // 1. Resolve tenant.
         var tenant = await ResolveTenantAsync(request, cancellationToken);
         if (tenant is null)
         {
@@ -29,19 +34,17 @@ public sealed class LoginHandler(
             return Result.Failure<LoginResponse>(AuthResultCode.TenantSuspended);
         }
 
-        // 2. Look up user by email or username (whichever matches; identifier is one or the other).
+        // 2. Look up user by email or username.
         var identifier = request.Identifier.Trim();
         var user = await users.FindByEmailAsync(tenant.Id, identifier, cancellationToken)
                    ?? await users.FindByUsernameAsync(tenant.Id, identifier, cancellationToken);
 
-        // Generic InvalidCredentials response either way so we don't leak whether the user exists.
         if (user is null)
         {
             return Result.Failure<LoginResponse>(AuthResultCode.InvalidCredentials);
         }
 
-        // 3. Status checks come BEFORE the password check so a locked/disabled user gets the right
-        //    error code (helps the user understand why login failed and reduces support load).
+        // 3. Status checks BEFORE password verify — distinct codes help the user understand why.
         switch (user.Status)
         {
             case UserStatus.Disabled:
@@ -65,18 +68,55 @@ public sealed class LoginHandler(
             return Result.Failure<LoginResponse>(AuthResultCode.InvalidCredentials);
         }
 
-        // 5. Success — reset counters, stamp LastLoginAt, mint the token.
+        // 5. Success — reset counters, stamp LastLoginAt.
         user.FailedLoginAttempts = 0;
         user.LastFailedLoginAt = null;
         user.LastLoginAt = DateTime.UtcNow;
         await users.UpdateAsync(user, cancellationToken);
 
-        var token = jwt.Issue(user);
+        // 6. Create the Session + initial RefreshToken.
+        var now = DateTime.UtcNow;
+        var jwtOpts = jwtOptions.Value;
+        var session = new Session
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenant.Id,
+            UserId = user.Id,
+            AuthMethod = SessionAuthMethod.Password,
+            DeviceLabel = string.IsNullOrWhiteSpace(request.DeviceLabel) ? null : request.DeviceLabel.Trim(),
+            IpFirst = request.Ip,
+            IpLast = request.Ip,
+            LastSeenAt = now,
+            ExpiresAt = now.Add(jwtOpts.RefreshTokenLifetime),
+            Status = SessionStatus.Active,
+            CreatedAt = now,
+            CreatedBy = user.Id,
+        };
+        await sessions.AddAsync(session, cancellationToken);
+
+        var (refreshPlain, refreshHash) = refreshTokenFactory.Generate();
+        var refresh = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenant.Id,
+            SessionId = session.Id,
+            TokenHash = refreshHash,
+            ExpiresAt = session.ExpiresAt,
+            Status = RefreshTokenStatus.Active,
+            CreatedAt = now,
+        };
+        await refreshTokens.AddAsync(refresh, cancellationToken);
+
+        // 7. Mint the access JWT (with sid for logout / session-tracking).
+        var token = jwt.Issue(user, session.Id);
 
         return Result.Success(new LoginResponse
         {
             AccessToken = token.AccessToken,
             ExpiresAt = token.ExpiresAt,
+            RefreshToken = refreshPlain,
+            RefreshTokenExpiresAt = refresh.ExpiresAt,
+            SessionId = session.Id,
             UserId = user.Id,
             TenantId = tenant.Id,
         });

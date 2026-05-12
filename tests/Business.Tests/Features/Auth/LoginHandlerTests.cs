@@ -1,5 +1,6 @@
 using Business.Authentication;
 using Business.Authentication.Jwt;
+using Business.Authentication.Sessions;
 using Business.Features.Auth.Login;
 using Business.Identity;
 using Domain.Entities.Identity;
@@ -229,7 +230,11 @@ public class LoginHandlerTests
 
         var jwt = new JwtTokenIssuer(SnapshotJwt());
         var loginOptions = SnapshotLogin(new LoginOptions { MaxFailedAttempts = maxFailedAttempts });
-        var handler = new LoginHandler(tenants, users, hasher, jwt, loginOptions);
+        var sessions = new InMemorySessionStore();
+        var refreshTokens = new InMemoryRefreshTokenStore();
+        var refreshFactory = new RefreshTokenFactory();
+        var handler = new LoginHandler(
+            tenants, users, hasher, jwt, sessions, refreshTokens, refreshFactory, loginOptions, SnapshotJwt());
 
         return (handler, users, user, tenants);
     }
