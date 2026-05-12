@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Threading.RateLimiting;
+using Business.Common;
 using Business.Providers.Mail;
 using Business.Services;
 using Caching.InMemory;
@@ -20,6 +21,14 @@ builder.Services
     .AddBusinessServices()
     .AddMailProvider()
     .AddInMemoryCaching(builder.Configuration);
+
+// HTTP-aware identity + tenant context. `AddBusiness()` already registered Null* defaults via
+// TryAddScoped; the explicit AddScoped calls below override them. HttpUserContext reads the
+// `sub` (ClaimTypes.NameIdentifier) claim; HttpTenantContext reads the `tid` claim first then
+// falls back to the `X-Tenant-Id` header for pre-auth flows.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContext, HttpUserContext>();
+builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 
 // Global exception handling — unhandled throws become ProblemDetails with a correlation id.
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
