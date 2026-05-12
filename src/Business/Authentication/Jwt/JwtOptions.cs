@@ -8,6 +8,7 @@ public sealed class JwtOptions
     public string Audience { get; set; } = "shframework";
     public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromMinutes(15);
     public TimeSpan ClockSkew { get; set; } = TimeSpan.FromSeconds(30);
+    public TimeSpan RefreshTokenLifetime { get; set; } = TimeSpan.FromDays(30);
 
     /// <summary>
     /// HMAC-SHA256 signing key. Must be at least 32 UTF-8 bytes (256 bits). Sourced from

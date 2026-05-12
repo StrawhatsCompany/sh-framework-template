@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <PackageType>Template</PackageType>
     <PackageId>StrawhatsCompany.SHFramework.Templates</PackageId>
-    <PackageVersion>3.9.0</PackageVersion>
+    <PackageVersion>3.10.0</PackageVersion>
     <Title>Strawhats Framework Templates</Title>
     <Authors>Strawhats Company</Authors>
     <Description>Templates for creating Strawhats framework services.</Description>

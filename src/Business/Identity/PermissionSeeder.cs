@@ -18,9 +18,11 @@ internal sealed class PermissionSeeder(IPermissionStore permissions) : IHostedSe
         ("admin.tenants.write",     "Create, update, soft-delete tenants"),
 
         // Users
-        ("admin.users.read",        "Read user records across the tenant"),
-        ("admin.users.write",       "Create, update, soft-delete users"),
-        ("admin.users.roles.write", "Assign and unassign roles for any user"),
+        ("admin.users.read",           "Read user records across the tenant"),
+        ("admin.users.write",          "Create, update, soft-delete users"),
+        ("admin.users.roles.write",    "Assign and unassign roles for any user"),
+        ("admin.users.sessions.read",  "Read active sessions for any user"),
+        ("admin.users.sessions.write", "Revoke active sessions for any user"),
 
         // Roles
         ("admin.roles.read",        "Read role records"),
