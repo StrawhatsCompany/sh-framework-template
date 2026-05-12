@@ -233,8 +233,11 @@ public class LoginHandlerTests
         var sessions = new InMemorySessionStore();
         var refreshTokens = new InMemoryRefreshTokenStore();
         var refreshFactory = new RefreshTokenFactory();
+        var mfaFactors = new Business.Authentication.Mfa.InMemoryMfaFactorStore();
+        var mfaOrchestrator = Substitute.For<Business.Authentication.Mfa.IMfaOrchestrator>();
         var handler = new LoginHandler(
-            tenants, users, hasher, jwt, sessions, refreshTokens, refreshFactory, loginOptions, SnapshotJwt());
+            tenants, users, hasher, jwt, sessions, refreshTokens, refreshFactory,
+            mfaFactors, mfaOrchestrator, loginOptions, SnapshotJwt());
 
         return (handler, users, user, tenants);
     }
