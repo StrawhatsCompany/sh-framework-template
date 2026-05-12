@@ -66,7 +66,8 @@ This template is a [bill of materials](https://en.wikipedia.org/wiki/Bill_of_mat
 
 | Template version | `SH.Framework.Library.Cqrs` | `SH.Framework.Library.Cqrs.Implementation` | `SH.Framework.Library.Cqrs.Implementation.EntityFrameworkCore` | `SH.Framework.Library.AspNetCore` | `StrawhatsCompany.SHFramework.Cli` (recommended) |
 |---|---|---|---|---|---|
-| **3.14.0** (current) | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
+| **3.15.0** (current) | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
+| 3.14.0 | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
 | 3.13.0 | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
 | 3.12.0 | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
 | 3.11.0 | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
