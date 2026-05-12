@@ -1,3 +1,4 @@
+using Business.Authentication.ApiKeys;
 using Business.Authentication.Authorization;
 using Business.Authentication.Jwt;
 using Business.Authentication.Sessions;
@@ -25,6 +26,11 @@ public static class RegisterAuthentication
         services.TryAddSingleton<ISessionStore, InMemorySessionStore>();
         services.TryAddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
         services.TryAddSingleton<IRefreshTokenFactory, RefreshTokenFactory>();
+
+        // API key store + factory.
+        services.TryAddSingleton<IApiKeyStore, InMemoryApiKeyStore>();
+        services.TryAddSingleton<IApiKeyFactory, ApiKeyFactory>();
+        services.Configure<ApiKeyOptions>(configuration.GetSection(ApiKeyOptions.SectionName));
 
         // Permission policy machinery — gates endpoints with [HasPermission("admin.users.write")].
         // Resolves against the DB at request time (user -> roles -> permissions) so role changes

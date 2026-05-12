@@ -31,6 +31,12 @@ internal sealed class PermissionSeeder(IPermissionStore permissions) : IHostedSe
         // Permissions
         ("admin.permissions.read",  "Read permissions in the global catalog"),
         ("admin.permissions.write", "Create and delete permissions in the global catalog"),
+
+        // API keys
+        ("api-keys.read",         "Read your own API keys"),
+        ("api-keys.write",        "Create and revoke your own API keys"),
+        ("admin.api-keys.read",   "Read API keys across the tenant"),
+        ("admin.api-keys.write",  "Revoke API keys across the tenant"),
     ];
 
     public async Task StartAsync(CancellationToken cancellationToken)

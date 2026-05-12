@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
 using Business.Authentication;
+using Business.Authentication.ApiKeys;
 using Business.Authentication.Jwt;
 using Business.Common;
 using Business.Providers.Mail;
@@ -36,15 +37,16 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContext, HttpUserContext>();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 
-// Authentication + authorization. JWT bearer is the only scheme today; API keys land in #77,
-// SSO in #81. Endpoints opt in to permission gating via [HasPermission("admin.users.write")]
-// — the policy resolves against the DB at request time so role changes apply immediately.
+// Authentication + authorization. Two schemes ship today: JWT bearer (default) and ApiKey.
+// Endpoints accept either by default; permission gating via [HasPermission] / RequirePermission
+// is scheme-agnostic and resolves against the DB at request time.
 builder.Services.AddAuthentication(opts =>
     {
         opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, _ => { });
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, _ => { })
+    .AddApiKeyAuthentication();
 
 builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
     new ConfigureNamedOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, opts =>
