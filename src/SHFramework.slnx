@@ -8,6 +8,7 @@
     <Project Path="Caching.InMemory/Caching.InMemory.csproj" />
     <Project Path="Domain/Domain.csproj" />
     <Project Path="Providers.Mail/Providers.Mail.csproj" />
+    <Project Path="Providers.Sms/Providers.Sms.csproj" />
     <Project Path="WebApi/WebApi.csproj" />
   </Folder>
   <Folder Name="/tests/">

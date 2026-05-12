@@ -3,7 +3,9 @@ using Business.Authentication.Authorization;
 using Business.Authentication.Jwt;
 using Business.Authentication.Mfa;
 using Business.Authentication.Mfa.Email;
+using Business.Authentication.Mfa.Sms;
 using Business.Authentication.Mfa.Totp;
+using Business.Providers.Sms;
 using Business.Authentication.Sessions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -40,11 +42,14 @@ public static class RegisterAuthentication
         // plug in without changes here.
         services.Configure<MfaOptions>(configuration.GetSection(MfaOptions.SectionName));
         services.Configure<EmailMfaOptions>(configuration.GetSection(EmailMfaOptions.SectionName));
+        services.Configure<SmsMfaOptions>(configuration.GetSection(SmsMfaOptions.SectionName));
+        services.Configure<SmsOptions>(configuration.GetSection(SmsOptions.SectionName));
         services.TryAddSingleton<IMfaFactorStore, InMemoryMfaFactorStore>();
         services.TryAddSingleton<IMfaChallengeStore, InMemoryMfaChallengeStore>();
         services.TryAddSingleton<ITotpService, TotpService>();
         services.AddScoped<IMfaChannel, TotpMfaChannel>();
         services.AddScoped<IMfaChannel, EmailMfaChannel>();
+        services.AddScoped<IMfaChannel, SmsMfaChannel>();
         services.AddScoped<IMfaOrchestrator, MfaOrchestrator>();
 
         // Permission policy machinery — gates endpoints with [HasPermission("admin.users.write")].

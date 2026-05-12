@@ -67,6 +67,8 @@ Note the double underscore (`__`) — it is how .NET's environment-variable prov
 | `Authentication:Jwt:SigningKey` | `JwtOptions` → JWT bearer token validation + `IJwtTokenIssuer` | **required** — ≥ 32 UTF-8 bytes (HMAC-SHA256). Set via user-secrets / env / secret store. Never in `appsettings.json`. |
 | `Mail:Username` | `MailOptions` → `SmtpProvider.AuthenticateAsync` | optional — leave unset for unauthenticated relays (MailHog, dev) |
 | `Mail:Password` | `MailOptions` → `SmtpProvider.AuthenticateAsync` | optional — required when `Username` is set |
+| `Sms:AccountSid` | `SmsOptions` → `TwilioSmsProvider` | required when SMS dispatch is enabled (Twilio account SID) |
+| `Sms:AuthToken` | `SmsOptions` → `TwilioSmsProvider` | required when SMS dispatch is enabled (Twilio auth token) |
 
 Set the JWT signing key during local setup:
 

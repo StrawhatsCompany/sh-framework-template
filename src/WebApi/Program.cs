@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Providers.Mail;
+using Providers.Sms;
 using SH.Framework.Library.AspNetCore;
 using WebApi.Common;
 
@@ -27,6 +28,7 @@ builder.Services
     .AddBusiness()
     .AddBusinessServices()
     .AddMailProvider()
+    .AddSmsProvider()
     .AddInMemoryCaching(builder.Configuration);
 
 // HTTP-aware identity + tenant context. `AddBusiness()` already registered Null* defaults via
