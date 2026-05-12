@@ -37,6 +37,10 @@ internal sealed class PermissionSeeder(IPermissionStore permissions) : IHostedSe
         ("api-keys.write",        "Create and revoke your own API keys"),
         ("admin.api-keys.read",   "Read API keys across the tenant"),
         ("admin.api-keys.write",  "Revoke API keys across the tenant"),
+
+        // SSO providers
+        ("admin.sso-providers.read",  "Read SSO provider configurations"),
+        ("admin.sso-providers.write", "Create, update, soft-delete SSO providers"),
     ];
 
     public async Task StartAsync(CancellationToken cancellationToken)

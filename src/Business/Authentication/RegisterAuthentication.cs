@@ -5,8 +5,9 @@ using Business.Authentication.Mfa;
 using Business.Authentication.Mfa.Email;
 using Business.Authentication.Mfa.Sms;
 using Business.Authentication.Mfa.Totp;
-using Business.Providers.Sms;
 using Business.Authentication.Sessions;
+using Business.Authentication.Sso;
+using Business.Providers.Sms;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +52,14 @@ public static class RegisterAuthentication
         services.AddScoped<IMfaChannel, EmailMfaChannel>();
         services.AddScoped<IMfaChannel, SmsMfaChannel>();
         services.AddScoped<IMfaOrchestrator, MfaOrchestrator>();
+
+        // SSO — per-tenant providers + OIDC token exchange. Auto-provisioning policy lives in
+        // SsoOptions. Persistence-backed stores override the in-memory defaults.
+        services.Configure<SsoOptions>(configuration.GetSection(SsoOptions.SectionName));
+        services.TryAddSingleton<ISsoProviderStore, InMemorySsoProviderStore>();
+        services.TryAddSingleton<IUserSsoIdentityStore, InMemoryUserSsoIdentityStore>();
+        services.TryAddScoped<IOidcTokenExchange, OidcTokenExchange>();
+        services.AddHttpClient("Sso");
 
         // Permission policy machinery — gates endpoints with [HasPermission("admin.users.write")].
         // Resolves against the DB at request time (user -> roles -> permissions) so role changes
