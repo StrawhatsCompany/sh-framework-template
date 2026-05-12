@@ -1,0 +1,18 @@
+<Project>
+
+  <PropertyGroup Label="SH Framework BOM">
+    <!--
+      Single source of truth for the SH.Framework.Library.* package versions consumed
+      by this template (and by services scaffolded from it). When a sibling library
+      bumps and we adopt the new version, bump the value here AND bump
+      StrawhatsCompany.SHFramework.Templates' <PackageVersion>, then update the
+      "Supported matrix" table in src/README.md so downstream consumers can see what
+      they're getting.
+    -->
+    <SHCqrsVersion>3.0.1</SHCqrsVersion>
+    <SHCqrsImplementationVersion>3.0.8</SHCqrsImplementationVersion>
+    <SHCqrsEfCoreVersion>10.0.3</SHCqrsEfCoreVersion>
+    <SHAspNetCoreVersion>1.0.0</SHAspNetCoreVersion>
+  </PropertyGroup>
+
+</Project>

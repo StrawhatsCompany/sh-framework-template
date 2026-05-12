@@ -60,6 +60,18 @@ dotnet user-secrets set "Mail:Password" "your-smtp-password"
 
 Target framework: `net10.0`. See [`CLAUDE.md`](../CLAUDE.md) for the full conventions.
 
+## Supported matrix
+
+This template is a [bill of materials](https://en.wikipedia.org/wiki/Bill_of_materials) for the SH Framework family — each release pins a vetted set of sibling library versions. Pin the template version in your service, and you get a tested combination. The actual versions live in `src/Directory.Build.props` (MSBuild properties), referenced from the consuming csprojs via `Version="$(SHxxxVersion)"`. The table below is the human-readable changelog.
+
+| Template version | `SH.Framework.Library.Cqrs` | `SH.Framework.Library.Cqrs.Implementation` | `SH.Framework.Library.Cqrs.Implementation.EntityFrameworkCore` | `SH.Framework.Library.AspNetCore` | `StrawhatsCompany.SHFramework.Cli` (recommended) |
+|---|---|---|---|---|---|
+| **3.4.0** (current) | 3.0.1 | 3.0.8 | 10.0.3 | 1.0.0 | 0.4.1 |
+
+The first four columns are package references resolved at restore time. The CLI is a `dotnet tool` — install separately with `dotnet tool install -g StrawhatsCompany.SHFramework.Cli`. The matrix lists the CLI version this template release was tested against; newer minor/patch CLI versions are expected to remain compatible.
+
+**Rule of thumb:** when a sibling library bumps and we want to adopt it, bump `SHxxxVersion` in `src/Directory.Build.props` AND bump this template's `<PackageVersion>` (patch for a lib fix, minor for a lib feature). Add a new row to this table.
+
 ## Audit + skills
 
 The repo ships two project-scoped Claude Code skills under `.claude/skills/`:
