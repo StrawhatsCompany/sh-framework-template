@@ -16,7 +16,9 @@ public class PermissionSeederTests
         Assert.Contains(all, p => p.Name == "admin.tenants.read");
         Assert.Contains(all, p => p.Name == "admin.users.write");
         Assert.Contains(all, p => p.Name == "admin.permissions.write");
-        Assert.All(all, p => Assert.Equal("admin", p.Category));
+        Assert.Contains(all, p => p.Name == "api-keys.write");
+        // Category is the first dotted segment, so we expect "admin" or "api-keys".
+        Assert.All(all, p => Assert.Equal(p.Name.Split('.', 2)[0], p.Category));
     }
 
     [Fact]

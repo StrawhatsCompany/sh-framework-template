@@ -22,4 +22,9 @@ public static class AuthResultCode
     public static ResultCode SessionRevoked => ResultCode.Instance(4104, Category, "Session has been revoked");
     public static ResultCode SessionExpired => ResultCode.Instance(4105, Category, "Session has expired");
     public static ResultCode SessionNotFound => ResultCode.Instance(4106, Category, "Session not found");
+
+    // 4200-4299 — API key failures
+    public static ResultCode ApiKeyNotFound => ResultCode.Instance(4200, Category, "API key not found");
+    public static ResultCode ApiKeyNameInvalid => ResultCode.Instance(4201, Category, "API key name must be 2-128 characters");
+    public static ResultCode ApiKeyExpiryInPast => ResultCode.Instance(4202, Category, "API key expiry cannot be in the past");
 }
