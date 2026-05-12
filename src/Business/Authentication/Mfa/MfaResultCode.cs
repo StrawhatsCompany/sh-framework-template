@@ -16,4 +16,6 @@ public static class MfaResultCode
     public static ResultCode ChallengeFailed => ResultCode.Instance(4306, Category, "MFA challenge failed too many times; request a new one");
     public static ResultCode InvalidCode => ResultCode.Instance(4307, Category, "Invalid MFA code");
     public static ResultCode KindUnsupported => ResultCode.Instance(4308, Category, "No channel registered for this factor kind");
+    public static ResultCode RateLimited => ResultCode.Instance(4309, Category, "Too many MFA dispatch requests; try again later");
+    public static ResultCode DispatchFailed => ResultCode.Instance(4310, Category, "Failed to dispatch MFA code via the channel provider");
 }

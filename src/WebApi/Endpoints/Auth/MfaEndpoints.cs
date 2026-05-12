@@ -1,4 +1,5 @@
 using Business.Features.Auth.MfaEmail;
+using Business.Features.Auth.MfaSms;
 using Business.Features.Auth.MfaTotp;
 using Business.Features.Auth.MfaVerify;
 using Microsoft.AspNetCore.Http;
@@ -109,6 +110,55 @@ public sealed class DisableEmailEndpoint : IEndpoint
             (await projector.SendAsync(new DisableEmailCommand { FactorId = factorId }, ct)).ToHttp())
         .WithName("DisableEmailMfa")
         .WithSummary("Disable an email MFA factor (soft delete)")
+        .WithTags("Auth / MFA")
+        .RequireAuthorization()
+        .Produces<Result>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
+}
+
+public sealed class EnrollSmsEndpoint : IEndpoint
+{
+    public static string Route => "api/v1/auth/mfa/sms/enroll";
+
+    public static void Map(IEndpointRouteBuilder app) =>
+        app.MapPost(Route, async ([FromBody] EnrollSmsCommand cmd, [FromServices] IProjector projector, CancellationToken ct = default) =>
+            (await projector.SendAsync(cmd, ct)).ToHttp())
+        .WithName("EnrollSmsMfa")
+        .WithSummary("Enroll an SMS MFA factor — dispatches a one-time confirm code")
+        .WithDescription("Body: { phone }. The factor lands in PendingEnrollment; the user must POST the dispatched code to /mfa/sms/confirm to flip it Active. If the phone matches User.Phone, confirmation also stamps User.PhoneVerifiedAt.")
+        .WithTags("Auth / MFA")
+        .RequireAuthorization()
+        .Produces<Result<EnrollSmsResponse>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
+}
+
+public sealed class ConfirmSmsEndpoint : IEndpoint
+{
+    public static string Route => "api/v1/auth/mfa/sms/confirm";
+
+    public static void Map(IEndpointRouteBuilder app) =>
+        app.MapPost(Route, async ([FromBody] ConfirmSmsCommand cmd, [FromServices] IProjector projector, CancellationToken ct = default) =>
+            (await projector.SendAsync(cmd, ct)).ToHttp())
+        .WithName("ConfirmSmsMfa")
+        .WithSummary("Confirm an SMS MFA enrollment by submitting the dispatched code")
+        .WithTags("Auth / MFA")
+        .RequireAuthorization()
+        .Produces<Result>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
+}
+
+public sealed class DisableSmsEndpoint : IEndpoint
+{
+    public static string Route => "api/v1/auth/mfa/sms/{factorId:guid}";
+
+    public static void Map(IEndpointRouteBuilder app) =>
+        app.MapDelete(Route, async (Guid factorId, [FromServices] IProjector projector, CancellationToken ct = default) =>
+            (await projector.SendAsync(new DisableSmsCommand { FactorId = factorId }, ct)).ToHttp())
+        .WithName("DisableSmsMfa")
+        .WithSummary("Disable an SMS MFA factor (soft delete)")
         .WithTags("Auth / MFA")
         .RequireAuthorization()
         .Produces<Result>(StatusCodes.Status200OK)
